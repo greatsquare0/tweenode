@@ -1,0 +1,1 @@
+import handleConfig from "./handle_config";
