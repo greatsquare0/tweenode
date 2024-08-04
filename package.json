@@ -1,6 +1,6 @@
 {
   "name": "tweeno",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -14,16 +14,19 @@
     "config.template.toml"
   ],
   "keywords": [
-    "bun"
+    "Twine",
+    "Twee",
+    "Twee3",
+    "Tweego"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/wobsoriano/pkg-name#readme",
+  "homepage": "temp",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wobsoriano/pkg-name.git"
+    "url": "temp"
   },
-  "bugs": "https://github.com/wobsoriano/pkg-name/issues",
-  "author": "Robert Soriano <sorianorobertc@gmail.com>",
+  "bugs": "temp",
+  "author": "temp",
   "devDependencies": {
     "bun-plugin-dts": "^0.2.1",
     "@types/bun": "^1.0.0",

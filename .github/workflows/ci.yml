@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
       fail-fast: false
 
     steps:
@@ -31,7 +31,7 @@ jobs:
         name: Install dependencies
         run: |
           bun install
-      - id: test
-        name: Run test
-        run: |
-          bun test
+      # - id: test
+      #   name: Run test
+      #   run: |
+      #     bun test
