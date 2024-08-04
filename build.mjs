@@ -6,7 +6,7 @@ await Bun.build({
   outdir: './dist',
   sourcemap: 'external',
   target: 'node',
-  minify: false,
+  minify: true,
   external: ['smol-toml'],
   plugins: [dts()],  
 })

@@ -1,7 +1,7 @@
 import { existsSync, copyFileSync, readFileSync } from "node:fs";
 import { parse } from "smol-toml";
 
-import { projectRoot } from "./index";
+const projectRoot = process.cwd()
 
 const configFileName = 'tweeno_config.toml'
 

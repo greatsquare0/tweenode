@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "noImplicitAny": true,
     "allowJs": true,
     "noEmit": true,
