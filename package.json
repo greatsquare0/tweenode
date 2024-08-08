@@ -6,7 +6,7 @@
   "type": "module",
   "description": "",
   "scripts": {
-    "build": "bun run build.mjs",
+    "build": "bun run build.mts",
     "prepublishOnly": "bun run build"
   },
   "files": [
