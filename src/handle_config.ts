@@ -3,7 +3,7 @@ import { parse } from "smol-toml";
 
 const projectRoot = process.cwd()
 
-const configFileName = 'tweeno_config.toml'
+const configFileName = 'tweenode_config.toml'
 
 const handleConfig = () => {
   if (existsSync(`${projectRoot}/${configFileName}`)) {

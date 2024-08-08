@@ -1,4 +1,4 @@
-# Tweeno
+# tweenode
 
 A neat NPM package and wrapper for Tweego, downloads binaries from Tweego repo and expose a simple way to compile the story on JS
 

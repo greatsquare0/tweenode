@@ -3,10 +3,10 @@ import { existsSync, accessSync, constants } from "node:fs";
 
 
 const projectRoot = process.cwd()
-const tweeno_folder = `${projectRoot}/.tweeno`
+const tweenode_folder = `${projectRoot}/.tweenode`
 
 const verifyTweego = () => {
-  const tweegoExec = `${tweeno_folder}/tweego${process.platform == 'win32' ? '.exe' : null}`
+  const tweegoExec = `${tweenode_folder}/tweego${process.platform == 'win32' ? '.exe' : null}`
   if (!existsSync(tweegoExec)) throw new Error('Tweego exec not found')
 
   if (['linux', 'darwin'].includes(process.platform)) {

@@ -1,5 +1,5 @@
 {
-  "name": "tweeno",
+  "name": "tweenode",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,12 +20,12 @@
     "Tweego"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/greatsquare0/tweeno",
+  "homepage": "https://github.com/greatsquare0/tweenode",
   "repository": {
     "type": "git",
-    "url": "https://github.com/greatsquare0/tweeno"
+    "url": "https://github.com/greatsquare0/tweenode"
   },
-  "bugs": "https://github.com/greatsquare0/tweeno/issues",
+  "bugs": "https://github.com/greatsquare0/tweenode/issues",
   "author": "greatsquare0",
   "devDependencies": {
     "@types/bun": "^1.0.0",

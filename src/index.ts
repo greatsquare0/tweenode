@@ -17,9 +17,9 @@ import { runTweego, TweegoOptions } from "./run_tweego";
  * @param {TweegoOptions} options - Configuration options for Tweego.
  * @returns void
  */
-const tweeno = async (options: TweegoOptions) => {
+const tweenode = async (options: TweegoOptions) => {
   await downloadTweego()
   return runTweego(options)
 }
 
-export default tweeno
+export default tweenode

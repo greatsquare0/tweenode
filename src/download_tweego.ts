@@ -8,14 +8,14 @@ import ConfigTOML from "./types/config";
 import extract from "extract-zip";
 
 const projectRoot = process.cwd()
-const tweeno_folder = `${projectRoot}/.tweeno`
+const tweenode_folder = `${projectRoot}/.tweenode`
 
 
 const makeFolder = () => {
 
-  if (!existsSync(tweeno_folder)) {
+  if (!existsSync(tweenode_folder)) {
     try {
-      mkdirSync(tweeno_folder + '/')
+      mkdirSync(tweenode_folder + '/')
     } catch (error) {
       throw new Error(JSON.stringify(error))
     }
@@ -34,20 +34,20 @@ const downloadTweego = async () => {
 
   makeFolder()
 
-  if (existsSync(`${tweeno_folder}/tweego${process.platform == 'win32' ? '.exe' : null}`)) {
+  if (existsSync(`${tweenode_folder}/tweego${process.platform == 'win32' ? '.exe' : null}`)) {
     return 'Exec alredy exists'
   }
 
-  const fileName = await fetchAndSaveFile(config.tweego.binaries[process.platform][process.arch], tweeno_folder)
+  const fileName = await fetchAndSaveFile(config.tweego.binaries[process.platform][process.arch], tweenode_folder)
 
   try {
-    await extract(`${tweeno_folder}/${fileName}`, { dir: tweeno_folder })
+    await extract(`${tweenode_folder}/${fileName}`, { dir: tweenode_folder })
   } catch (error) {
     throw new Error(`Failed to extract zip: ${error}`)
   }
 
   try {
-    rmSync(`${tweeno_folder}/${fileName}`)
+    rmSync(`${tweenode_folder}/${fileName}`)
   } catch (error) {
     throw new Error(`Failed to cleanup: ${error}`)
   }
