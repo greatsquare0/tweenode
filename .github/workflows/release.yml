@@ -9,14 +9,23 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - uses: actions/setup-node@v3
+      
+      - name: Setup Bun
+        uses: actions/setup-bun@v2
         with:
-          node-version: 16.x
+          bun-version: latest
 
-      - run: npx changelogithub
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Install Dependacies
+        run: bun install
+
+      - name: Build Package
+        run: bun run build
+      
+      - name: Publish to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}

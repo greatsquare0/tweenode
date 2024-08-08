@@ -28,8 +28,8 @@
   "bugs": "https://github.com/greatsquare0/tweeno/issues",
   "author": "greatsquare0",
   "devDependencies": {
-    "bun-plugin-dts": "^0.2.1",
     "@types/bun": "^1.0.0",
+    "bun-plugin-dts": "^0.2.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
