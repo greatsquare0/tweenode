@@ -2,6 +2,7 @@
 
 [tweego.binaries]
 acceptable_plataforms = ['win32', 'darwin', 'linux']
+acceptable_arch = ['x86', 'x64']
 version = 'v2.1.1'
 
 [tweego.binaries.win32]

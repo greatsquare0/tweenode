@@ -1,4 +1,6 @@
-# tweenode
+# Tweenode
+
+> 🚨 highly experimental
 
 A neat NPM package and wrapper for Tweego, downloads binaries from Tweego repo and expose a simple way to compile the story on JS
 
@@ -8,7 +10,19 @@ Created with [Bun-lib-starter](https://github.com/wobsoriano/bun-lib-starter)
 
 Based in the tweego-install script on [sugarcube-starter](https://github.com/nijikokun/sugarcube-starter/) by nijikokun 
 
-## Setup
+## Basic usage
+
+```js
+import tweenode from 'tweenode'
+
+tweenode({
+  input: 'path/to/storyFolder'
+  output: 'path/to/output.html'
+})
+
+```
+
+## Development
 
 ```bash
 # install dependencies
