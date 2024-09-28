@@ -1,0 +1,178 @@
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
+
+import { existsSync } from 'fs';
+import { resolve } from 'path';
+import { loadConfig, defineConfig, TweenodeConfiguration } from '../src/handle_config'; // Adjust path
+
+vi.mock('fs');
+vi.mock('path', () => ({
+  resolve: vi.fn(),
+}));
+vi.mock('process', () => ({
+  cwd: vi.fn(() => '/test/cwd'),
+}));
+
+describe('Tweenode Configuration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('loadConfig', () => {
+    it('should return cached configuration if already loaded', async () => {
+      const mockConfig: TweenodeConfiguration = {
+        build: {
+          output: { mode: 'file', fileName: 'test.html' },
+          input: { storyDir: './test/story' }
+        },
+        tweegoBinaries: {
+          version: 'v2.1.1',
+          acceptablePlataforms: ['win32'],
+          acceptableArch: ['x86']
+        },
+        storyFormats: {
+          useTweegoBuiltin: true,
+        }
+      };
+
+      // Simulate config being cached
+      let cache = mockConfig;
+
+      const result = await loadConfig();
+
+      expect(result).toBe(mockConfig);
+    });
+
+    it('should resolve the config path correctly when a custom path is provided', async () => {
+      const mockCustomPath = './custom/config.js';
+      const expectedPath = '/test/cwd/custom/config.js';
+
+      (resolve as Mock).mockReturnValueOnce(expectedPath);
+
+      (existsSync as Mock).mockReturnValueOnce(true);
+
+      await loadConfig(mockCustomPath);
+
+      expect(resolve).toHaveBeenCalledWith(process.cwd(), mockCustomPath);
+    });
+
+    it('should resolve the default js/ts config path if no custom path is provided', async () => {
+      const jsPath = '/test/cwd/tweenode.config.js';
+      const tsPath = '/test/cwd/tweenode.config.ts';
+
+      (resolve as Mock)
+        .mockReturnValueOnce(jsPath)
+        .mockReturnValueOnce(tsPath);
+
+      (existsSync as Mock).mockReturnValueOnce(false).mockReturnValueOnce(true);
+
+      await loadConfig();
+
+      expect(resolve).toHaveBeenCalledWith(process.cwd(), 'tweenode.config.js');
+      expect(resolve).toHaveBeenCalledWith(process.cwd(), 'tweenode.config.ts');
+    });
+
+    it('should return default config if no config file exists', async () => {
+      const jsPath = '/test/cwd/tweenode.config.js';
+      const tsPath = '/test/cwd/tweenode.config.ts';
+
+      (resolve as Mock)
+        .mockReturnValueOnce(jsPath)
+        .mockReturnValueOnce(tsPath);
+
+      (existsSync as Mock).mockReturnValue(false);
+
+      const result = await loadConfig();
+
+      expect(result).toEqual({
+        build: {
+          output: { mode: 'string' },
+          input: { storyDir: '' }
+        },
+        tweegoBinaries: {
+          version: 'v2.1.1',
+          acceptableArch: ['win32', 'darwin', 'linux'],
+          acceptablePlataforms: ['x86', 'x64']
+        },
+        storyFormats: {
+          useTweegoBuiltin: true,
+        }
+      });
+    });
+
+    it('should import and cache the config file if it exists', async () => {
+      const mockConfig = {
+        default: {
+          build: {
+            output: { mode: 'file', fileName: 'output.html' },
+            input: { storyDir: './story' }
+          }
+        }
+      };
+
+      vi.mock('/test/cwd/tweenode.config.js', () => mockConfig);
+
+      (existsSync as Mock).mockReturnValueOnce(true);
+
+      const result = await loadConfig();
+
+      expect(result).toEqual(mockConfig.default);
+    });
+  });
+
+  describe('defineConfig', () => {
+    it('should merge the given config with the default config', () => {
+      const customConfig: TweenodeConfiguration = {
+        build: {
+          output: { mode: 'file', fileName: 'index.html' },
+          input: { storyDir: './src/story' }
+        },
+        tweegoBinaries: {
+          version: 'v2.2.0',
+          acceptablePlataforms: ['win32', 'darwin'],
+          acceptableArch: ['x64']
+        },
+        storyFormats: {
+          useTweegoBuiltin: false,
+          formats: [{ name: 'SugarCube', version: '2.34.1', src: './format.js' }]
+        }
+      };
+
+      const result = defineConfig(customConfig);
+
+      expect(result).toEqual({
+        build: {
+          output: { mode: 'file', fileName: 'index.html' },
+          input: { storyDir: './src/story' }
+        },
+        tweegoBinaries: {
+          version: 'v2.2.0',
+          acceptablePlataforms: ['win32', 'darwin'],
+          acceptableArch: ['x64']
+        },
+        storyFormats: {
+          useTweegoBuiltin: false,
+          formats: [{ name: 'SugarCube', version: '2.34.1', src: './format.js' }]
+        }
+      });
+    });
+
+    it('should fall back to default config if no config is provided', () => {
+      const result = defineConfig({} as TweenodeConfiguration);
+
+      expect(result).toEqual({
+        build: {
+          output: { mode: 'string' },
+          input: { storyDir: '' }
+        },
+        tweegoBinaries: {
+          version: 'v2.1.1',
+          acceptableArch: ['win32', 'darwin', 'linux'],
+          acceptablePlataforms: ['x86', 'x64']
+        },
+        storyFormats: {
+          useTweegoBuiltin: true,
+        }
+      });
+    });
+  });
+});

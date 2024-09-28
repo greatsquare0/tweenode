@@ -6,6 +6,9 @@
   "type": "module",
   "description": "",
   "scripts": {
+    "dev": "bun run --watch build.mts",
+    "test": "bunx vitest",
+    "test:ui": "bunx vitest --ui",
     "build": "bun run build.mts",
     "prepublishOnly": "bun run build"
   },
@@ -29,12 +32,14 @@
   "author": "greatsquare0",
   "devDependencies": {
     "@types/bun": "^1.0.0",
+    "@vitest/ui": "^2.1.1",
     "bun-plugin-dts": "^0.2.1",
-    "typescript": "^5.2.2"
+    "memfs": "^4.12.0",
+    "typescript": "^5.2.2",
+    "vitest": "^2.1.1"
   },
   "dependencies": {
     "extract-zip": "^2.0.1",
-    "node-fetch": "^3.3.2",
-    "smol-toml": "^1.3.0"
+    "node-fetch": "^3.3.2"
   }
 }

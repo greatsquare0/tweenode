@@ -1,44 +1,104 @@
-import { existsSync, copyFileSync, readFileSync } from "node:fs";
-import { parse } from "smol-toml";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+import { existsSync, readFileSync } from "fs";
+import { resolve } from "node:path";
 
-const projectRoot = process.cwd()
+interface StoryFormat {
+  name: string
+  version: string,
+  src: string
+}
 
-const configFileName = 'tweenode_config.toml'
+export interface TweenodeConfiguration {
+  build: {
+    output: {
+      mode: 'file' | 'string'
+      fileName?: string
+    },
+    input: {
+      storyDir: string
+      head?: string
+      modules?: string
+      forceDebug?: boolean
+      additionalFlags?: string[]
+    }
+  }
+  tweegoBinaries?: {
+    version: string,
+    acceptablePlataforms: string[] | ['win32', 'darwin', 'linux']
+    acceptableArch: string[] | ['x86', 'x64']
+  },
+  storyFormats?: {
+    useTweegoBuiltin: boolean,
+    formats?: StoryFormat[]
+  }
+}
 
-const handleConfig = () => {
-  if (existsSync(`${projectRoot}/${configFileName}`)) {
-    return readConfigFile()
+let cache: TweenodeConfiguration
 
+export const loadConfig = async (customPath?: string): Promise<TweenodeConfiguration> => {
+
+  if (cache) {
+    return cache
+  }
+  let configPath = ''
+
+  if (customPath) {
+    configPath = resolve(process.cwd(), customPath)
+    console.log(configPath)
   } else {
-    createConfigFile()
-    return readConfigFile()
+    const tsPath = resolve(process.cwd(), 'tweenode.config.js')
+    const jsPath = resolve(process.cwd(), 'tweenode.config.ts')
+
+    if (existsSync(jsPath)) {
+      configPath = jsPath
+    } else if (existsSync(tsPath)) {
+      configPath = tsPath
+    }
   }
+
+  if (!existsSync(configPath)) {
+    return defaultConfig as TweenodeConfiguration
+  }
+
+  const config = await import(configPath)
+
+  cache = config
+  return config
 
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const readConfigFile = () => {
-  const configRaw = readFileSync(`${projectRoot}/${configFileName}`, 'utf-8')
-  try {
-    const parsedConfig = parse(configRaw) as any
-    return parsedConfig
-
-  } catch (error) {
-    throw new Error(`Failed to parse the TOML: ${error}`)
+export const defaultConfig: Partial<TweenodeConfiguration> = {
+  build: {
+    output: {
+      mode: 'string'
+    },
+    input: {
+      storyDir: ''
+    }
+  },
+  tweegoBinaries: {
+    version: 'v2.1.1',
+    acceptableArch: ['win32', 'darwin', 'linux'],
+    acceptablePlataforms: ['x86', 'x64']
+  },
+  storyFormats: {
+    useTweegoBuiltin: true,
   }
 }
 
-const createConfigFile = () => {
-  try {
-    copyFileSync(`${__dirname}/config_template.toml`, `${projectRoot}/${configFileName}`)
-    return
-  } catch (error) {
-    throw new Error(`Failed to create the TOML: ${error}`)
-  }
+/**
+ * Defines configs for use in Tweenode
+ * @example
+ * export default defineConfig({
+ *   input: {
+ *     storyDir: './src/story/'
+ *   },
+ *   output: {
+ *   mode: 'file',
+ *     fileName: './dist/index.html'  
+ *   }
+ * })
+ * @param config {TweenodeConfiguration}
+ */
+export function defineConfig<T extends TweenodeConfiguration>(config: T): T {
+  return { ...defaultConfig, ...config }
 }
-
-export default handleConfig

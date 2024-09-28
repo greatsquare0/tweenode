@@ -6,10 +6,11 @@ await Bun.build({
   outdir: './dist',
   sourcemap: 'external',
   target: 'node',
-  minify: true,
+  minify: false,
   external: ['extract-zip', 'node-fetch', 'smol-toml'],
   plugins: [dts()],
 })
 
 
 copyFileSync('./config_template.toml', './dist/config_template.toml')
+console.log('Build finished')
