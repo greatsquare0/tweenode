@@ -1,10 +1,12 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync } from "fs";
 import { resolve } from "node:path";
 
 interface StoryFormat {
   name: string
-  version: string,
-  src: string
+  version?: string,
+  local?: boolean
+  src?: string,
+  createFolder?: boolean
 }
 
 export interface TweenodeConfiguration {
@@ -23,8 +25,7 @@ export interface TweenodeConfiguration {
   }
   tweegoBinaries?: {
     version: string,
-    acceptablePlataforms: string[] | ['win32', 'darwin', 'linux']
-    acceptableArch: string[] | ['x86', 'x64']
+    customUrl?: string
   },
   storyFormats?: {
     useTweegoBuiltin: boolean,
@@ -76,12 +77,25 @@ export const defaultConfig: Partial<TweenodeConfiguration> = {
     }
   },
   tweegoBinaries: {
-    version: 'v2.1.1',
-    acceptableArch: ['win32', 'darwin', 'linux'],
-    acceptablePlataforms: ['x86', 'x64']
+    version: '2.1.1',
   },
   storyFormats: {
-    useTweegoBuiltin: true,
+    useTweegoBuiltin: false,
+    formats: [
+      {
+        name: 'sugarcube-2',
+        version: '2.37.0',
+        local: false,
+        src: 'https://github.com/tmedwards/sugarcube-2/releases/download/v2.37.0/sugarcube-2.37.0-for-twine-2.1-local.zip',
+        createFolder: false
+      },
+      {
+        name: 'chapbook',
+        local: false,
+        src: 'https://klembot.github.io/chapbook/use/2.2.0/format.js',
+        createFolder: true
+      }
+    ]
   }
 }
 

@@ -2,3 +2,5 @@ node_modules
 dist
 .vscode
 src_old/
+.tweenode
+test/index.txt

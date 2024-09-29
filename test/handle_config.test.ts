@@ -22,8 +22,6 @@ describe('Tweenode Configuration', () => {
         },
         tweegoBinaries: {
           version: 'v2.2.0',
-          acceptablePlataforms: ['win32', 'darwin'],
-          acceptableArch: ['x64']
         },
         storyFormats: {
           useTweegoBuiltin: false,

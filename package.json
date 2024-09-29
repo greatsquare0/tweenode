@@ -9,12 +9,10 @@
     "dev": "bun run --watch build.mts",
     "test": "bunx vitest",
     "test:ui": "bunx vitest --ui",
-    "build": "bun run build.mts",
-    "prepublishOnly": "bun run build"
+    "build": "bun run build.mts"
   },
   "files": [
-    "dist",
-    "config.template.toml"
+    "dist"
   ],
   "keywords": [
     "Twine",
@@ -39,7 +37,6 @@
     "vitest": "^2.1.1"
   },
   "dependencies": {
-    "extract-zip": "^2.0.1",
-    "node-fetch": "^3.3.2"
+    "extract-zip": "^2.0.1"
   }
 }
