@@ -88,12 +88,6 @@ export const defaultConfig: Partial<TweenodeConfiguration> = {
         local: false,
         src: 'https://github.com/tmedwards/sugarcube-2/releases/download/v2.37.0/sugarcube-2.37.0-for-twine-2.1-local.zip',
         createFolder: false
-      },
-      {
-        name: 'chapbook',
-        local: false,
-        src: 'https://klembot.github.io/chapbook/use/2.2.0/format.js',
-        createFolder: true
       }
     ]
   }

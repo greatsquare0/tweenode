@@ -32,7 +32,6 @@ describe('Utils', () => {
       })
 
     })
-
   })
 
   describe.skip('downloadFile', () => {
