@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { defaultConfig, defineConfig, loadConfig, type TweenodeConfiguration } from "../src/handle_config";
+import { defaultConfig, defineConfig, loadConfig, type TweenodeConfig } from "../src/handle_config";
 
 describe('Tweenode Configuration', () => {
   beforeEach(() => {
@@ -9,23 +9,25 @@ describe('Tweenode Configuration', () => {
   describe('defineConfig', () => {
 
     it('Should fall back to the default config if no config is provided', () => {
-      const result = defineConfig({} as TweenodeConfiguration)
+      const result = defineConfig({} as TweenodeConfig)
       expect(result).toEqual(defaultConfig)
 
     })
 
     it('Should merge the given config with default config', () => {
-      const customConfig: TweenodeConfiguration = {
+      const customConfig: TweenodeConfig = {
         build: {
           output: { mode: 'file', fileName: 'index.html' },
           input: { storyDir: './src/story' }
         },
-        tweegoBinaries: {
-          version: 'v2.2.0',
-        },
-        storyFormats: {
-          useTweegoBuiltin: false,
-          formats: [{ name: 'Example', version: '2.0', src: 'https://examplesource.com/file.zip' }]
+        setup: {
+          tweegoBinaries: {
+            version: 'v2.2.0',
+          },
+          storyFormats: {
+            useTweegoBuiltin: false,
+            formats: [{ name: 'Example', version: '2.0', src: 'https://examplesource.com/file.zip' }]
+          }
         }
       }
 

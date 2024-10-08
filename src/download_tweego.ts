@@ -1,14 +1,15 @@
 import { existsSync } from "node:fs";
 import { mkdir, rm } from "node:fs/promises";
 import { resolve } from "node:path";
-import unzip from "extract-zip";
 
 import { loadConfig } from "./handle_config";
-import { downloadFile } from "./utils";
+import { downloadFile, extract } from "./utils";
 import { getTweegoUrl } from "./get_tweego_url";
-const tweenodeFolderPath = resolve(process.cwd(), './.tweenode/')
 
-console.log(tweenodeFolderPath)
+export const getTweenodeFolderPath = () => {
+  return resolve(process.cwd(), './.tweenode/')
+}
+
 
 const config = await loadConfig()
 
@@ -19,7 +20,7 @@ const config = await loadConfig()
 // }
 
 // const generateLock = async (lockFilePath: string) => {
-//   const tweenodeFolder = await readdir(tweenodeFolderPath, { recursive: true, withFileTypes: true })
+//   const tweenodeFolder = await readdir(getTweenodeFolderPath(), { recursive: true, withFileTypes: true })
 //   const fileStats: FileStat[] = []
 
 //   for await (const file of tweenodeFolder) {
@@ -46,7 +47,7 @@ const config = await loadConfig()
 
 // const verifyLock = async (lockFilePath: string) => {
 //   const lockFile = JSON.parse(await readFile(lockFilePath, { encoding: 'utf-8' })).files as FileStat[]
-//   const tweenodeFolder = await readdir(tweenodeFolderPath, { recursive: true, withFileTypes: true })
+//   const tweenodeFolder = await readdir(getTweenodeFolderPath(), { recursive: true, withFileTypes: true })
 
 //   const failedEntrys: FileStat[] = []
 //   const notTracked = []
@@ -73,7 +74,7 @@ const config = await loadConfig()
 // }
 
 // const verifyFiles = async () => {
-//   const lockFilePath = resolve(tweenodeFolderPath, 'lock.json')
+//   const lockFilePath = resolve(getTweenodeFolderPath(), 'lock.json')
 //   // if (existsSync(lockFilePath)) {
 //   //   await rm(lockFilePath)
 //   // }
@@ -82,29 +83,31 @@ const config = await loadConfig()
 
 // }
 
-const downloadTweego = async () => {
-  if (!existsSync(tweenodeFolderPath)) {
-    await mkdir(tweenodeFolderPath)
+export const downloadTweego = async () => {
+  if (!existsSync(getTweenodeFolderPath())) {
+    await mkdir(getTweenodeFolderPath(), { recursive: true })
   }
 
-  const url = config.tweegoBinaries!.customUrl !== '' ? getTweegoUrl() : config.tweegoBinaries!.customUrl
-  await downloadFile(url!, resolve(tweenodeFolderPath, url!.split('/').pop()!))
+  const url = config.setup.tweegoBinaries!.customUrl !== '' ? getTweegoUrl() : config.setup.tweegoBinaries!.customUrl
+  await downloadFile(url!, resolve(getTweenodeFolderPath(), url!.split('/').pop()!))
 }
 
-const extractTweego = async () => {
+export const extractTweego = async () => {
   const archiveName = getTweegoUrl().split('/').pop()
-  await unzip(resolve(tweenodeFolderPath, archiveName!), { dir: tweenodeFolderPath })
-  await rm(resolve(tweenodeFolderPath, archiveName!), { recursive: true })
+  const archivePath = resolve(getTweenodeFolderPath(), archiveName!)
+
+  extract(archivePath, getTweenodeFolderPath())
+  await rm(archivePath)
 }
 
-const downloadCustomStoryFormats = async () => {
-  for await (const format of config.storyFormats!.formats!) {
+export const downloadCustomStoryFormats = async () => {
+  for await (const format of config.setup.storyFormats!.formats!) {
     const archiveName = format.src!.split('/').pop()
 
     let path = ''
 
     if (format.createFolder) {
-      path = resolve(tweenodeFolderPath, `./storyformats/${format.name}`)
+      path = resolve(getTweenodeFolderPath(), `./storyformats/${format.name}`)
 
       if (!existsSync(path)) {
         await mkdir(path, { recursive: true })
@@ -113,7 +116,7 @@ const downloadCustomStoryFormats = async () => {
         await mkdir(path, { recursive: true })
       }
     } else {
-      path = resolve(tweenodeFolderPath, './storyformats/')
+      path = resolve(getTweenodeFolderPath(), './storyformats/')
       const formatFolder = resolve(path, format.name)
       if (!existsSync(path)) {
         await mkdir(path, { recursive: true })
@@ -126,21 +129,18 @@ const downloadCustomStoryFormats = async () => {
 
     await downloadFile(format.src!, resolve(path, archiveName!))
     if (archiveName?.split('.').pop() == 'zip') {
-      await unzip(resolve(path, archiveName!), { dir: path })
+      extract(resolve(path, archiveName!), path)
       await rm(resolve(path, archiveName!))
     }
   }
-
-
-
 }
 
 export const setupTweego = async () => {
-  if (!existsSync(tweenodeFolderPath)) {
+  if (!existsSync(getTweenodeFolderPath())) {
     await downloadTweego()
     await extractTweego()
 
-    if (config.storyFormats!.formats!.length > 0) {
+    if (config.setup.storyFormats!.formats!.length > 0) {
       await downloadCustomStoryFormats()
     }
   }

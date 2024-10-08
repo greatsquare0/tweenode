@@ -29,6 +29,7 @@
   "bugs": "https://github.com/greatsquare0/tweenode/issues",
   "author": "greatsquare0",
   "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
     "@types/bun": "^1.0.0",
     "@vitest/ui": "^2.1.1",
     "bun-plugin-dts": "^0.2.1",
@@ -37,6 +38,6 @@
     "vitest": "^2.1.1"
   },
   "dependencies": {
-    "extract-zip": "^2.0.1"
+    "adm-zip": "^0.5.16"
   }
 }

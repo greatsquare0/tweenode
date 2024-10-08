@@ -35,5 +35,5 @@ export const getTweegoUrl = () => {
   //@ts-ignore
   const architecture = ARCH_MAPPING[arch]
 
-  return `https://github.com/tmedwards/tweego/releases/download/v${config.tweegoBinaries!.version}/tweego-${config.tweegoBinaries!.version}-${os}-${architecture}.zip`;
+  return `https://github.com/tmedwards/tweego/releases/download/v${config.setup.tweegoBinaries!.version}/tweego-${config.setup.tweegoBinaries!.version}-${os}-${architecture}.zip`;
 }

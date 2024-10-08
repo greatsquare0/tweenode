@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { resolve } from "node:path";
 
-interface StoryFormat {
+export interface StoryFormat {
   name: string
   version?: string,
   local?: boolean
@@ -9,20 +9,22 @@ interface StoryFormat {
   createFolder?: boolean
 }
 
-export interface TweenodeConfiguration {
-  build: {
-    output: {
-      mode: 'file' | 'string'
-      fileName?: string
-    },
-    input: {
-      storyDir: string
-      head?: string
-      modules?: string
-      forceDebug?: boolean
-      additionalFlags?: string[]
-    }
+export interface TweenodeBuildConfig {
+  output: {
+    mode: 'file' | 'string'
+    fileName?: string
   }
+  input: {
+    storyDir: string
+    head?: string
+    modules?: string
+    forceDebug?: boolean
+    additionalFlags?: string[]
+  }
+
+}
+
+export interface TweenodeSetupConfig {
   tweegoBinaries?: {
     version: string,
     customUrl?: string
@@ -31,11 +33,17 @@ export interface TweenodeConfiguration {
     useTweegoBuiltin: boolean,
     formats?: StoryFormat[]
   }
+
 }
 
-let cache: TweenodeConfiguration
+export interface TweenodeConfig {
+  build: TweenodeBuildConfig
+  setup: TweenodeSetupConfig
+}
 
-export const loadConfig = async (customPath?: string): Promise<TweenodeConfiguration> => {
+let cache: TweenodeConfig
+
+export const loadConfig = async (customPath?: string): Promise<TweenodeConfig> => {
 
   if (cache) {
     return cache
@@ -57,7 +65,7 @@ export const loadConfig = async (customPath?: string): Promise<TweenodeConfigura
   }
 
   if (!existsSync(configPath)) {
-    return defaultConfig as TweenodeConfiguration
+    return defaultConfig as TweenodeConfig
   }
 
   const config = await import(configPath)
@@ -67,7 +75,7 @@ export const loadConfig = async (customPath?: string): Promise<TweenodeConfigura
 
 }
 
-export const defaultConfig: Partial<TweenodeConfiguration> = {
+export const defaultConfig: Partial<TweenodeConfig> = {
   build: {
     output: {
       mode: 'string'
@@ -76,20 +84,28 @@ export const defaultConfig: Partial<TweenodeConfiguration> = {
       storyDir: ''
     }
   },
-  tweegoBinaries: {
-    version: '2.1.1',
-  },
-  storyFormats: {
-    useTweegoBuiltin: false,
-    formats: [
-      {
-        name: 'sugarcube-2',
-        version: '2.37.0',
-        local: false,
-        src: 'https://github.com/tmedwards/sugarcube-2/releases/download/v2.37.0/sugarcube-2.37.0-for-twine-2.1-local.zip',
-        createFolder: false
-      }
-    ]
+  setup: {
+    tweegoBinaries: {
+      version: '2.1.1',
+    },
+    storyFormats: {
+      useTweegoBuiltin: false,
+      formats: [
+        {
+          name: 'sugarcube-2',
+          version: '2.37.0',
+          local: false,
+          src: 'https://github.com/tmedwards/sugarcube-2/releases/download/v2.37.0/sugarcube-2.37.0-for-twine-2.1-local.zip',
+          createFolder: false
+        },
+        {
+          name: 'harlowe4-unstable',
+          version: '4.0.0',
+          src: 'https://twine2.neocities.org/harlowe4-unstable.js',
+          createFolder: true
+        }
+      ]
+    }
   }
 }
 
@@ -105,8 +121,8 @@ export const defaultConfig: Partial<TweenodeConfiguration> = {
  *     fileName: './dist/index.html'  
  *   }
  * })
- * @param config {TweenodeConfiguration}
+ * @param config {TweenodeConfig}
  */
-export function defineConfig<T extends TweenodeConfiguration>(config: T): T {
+export function defineConfig<T extends TweenodeConfig>(config: T): T {
   return { ...defaultConfig, ...config }
 }
