@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
-import { fs, vol } from "memfs";
-import { downloadFile, generateChecksum } from "../src/utils";
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { fs, vol } from 'memfs'
+import { downloadFile, generateChecksum } from '../src/utils'
 
 vi.mock('node:fs')
 vi.mock('node:fs/promises')
@@ -25,16 +25,20 @@ describe('Utils', () => {
         }
       ]
 
-      test.each(cases)(`File ${path} with algorithm: $algorithm, should result in the hash: $hash`, async ({ algorithm, hash }) => {
-        fs.writeFileSync(path, 'lorem ipsum sit dolor amen', { encoding: "utf-8" })
-        const result = await generateChecksum(path, algorithm)
-        expect(result).toEqual(hash)
-      })
-
+      test.each(cases)(
+        `File ${path} with algorithm: $algorithm, should result in the hash: $hash`,
+        async ({ algorithm, hash }) => {
+          fs.writeFileSync(path, 'lorem ipsum sit dolor amen', {
+            encoding: 'utf-8'
+          })
+          const result = await generateChecksum(path, algorithm)
+          expect(result).toEqual(hash)
+        }
+      )
     })
   })
 
-  describe.skip('downloadFile', () => {
+  describe('downloadFile', () => {
     const genericTestFiles = [
       {
         url: 'https://test-videos.co.uk/vids/bigbuckbunny/webm/vp9/360/Big_Buck_Bunny_360_10s_1MB.webm',
@@ -51,15 +55,16 @@ describe('Utils', () => {
     ]
 
     describe('Should be able to successively download and save a file', () => {
-
-      test.each(genericTestFiles)(`Donwloading file: $url with checksum $hash`, async ({ url, hash }) => {
-        fs.mkdirSync('/tmp/download', { recursive: true })
-        const path = `/tmp/download/${crypto.randomUUID()}.webm`
-        await downloadFile(url, path)
-        const result = await generateChecksum(path, 'sha256')
-        expect(result).toEqual(hash)
-
-      })
+      test.each(genericTestFiles)(
+        `Donwloading file: $url with checksum $hash`,
+        async ({ url, hash }) => {
+          fs.mkdirSync('/tmp/download', { recursive: true })
+          const path = `/tmp/download/${crypto.randomUUID()}.webm`
+          await downloadFile(url, path)
+          const result = await generateChecksum(path, 'sha256')
+          expect(result).toEqual(hash)
+        }
+      )
     })
   })
 })

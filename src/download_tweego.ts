@@ -1,15 +1,14 @@
-import { existsSync } from "node:fs";
-import { mkdir, rm } from "node:fs/promises";
-import { resolve } from "node:path";
+import { existsSync } from 'node:fs'
+import { mkdir, rm } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
-import { loadConfig } from "./handle_config";
-import { downloadFile, extract } from "./utils";
-import { getTweegoUrl } from "./get_tweego_url";
+import { loadConfig } from './handle_config'
+import { downloadFile, extract } from './utils'
+import { getTweegoUrl } from './get_tweego_url'
 
 export const getTweenodeFolderPath = () => {
   return resolve(process.cwd(), './.tweenode/')
 }
-
 
 const config = await loadConfig()
 
@@ -88,8 +87,14 @@ export const downloadTweego = async () => {
     await mkdir(getTweenodeFolderPath(), { recursive: true })
   }
 
-  const url = config.setup.tweegoBinaries!.customUrl !== '' ? getTweegoUrl() : config.setup.tweegoBinaries!.customUrl
-  await downloadFile(url!, resolve(getTweenodeFolderPath(), url!.split('/').pop()!))
+  const url =
+    config.setup.tweegoBinaries!.customUrl !== ''
+      ? getTweegoUrl()
+      : config.setup.tweegoBinaries!.customUrl
+  await downloadFile(
+    url!,
+    resolve(getTweenodeFolderPath(), url!.split('/').pop()!)
+  )
 }
 
 export const extractTweego = async () => {

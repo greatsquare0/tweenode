@@ -1,11 +1,11 @@
-import { existsSync } from "fs";
-import { resolve } from "node:path";
+import { existsSync } from 'fs'
+import { resolve } from 'node:path'
 
 export interface StoryFormat {
   name: string
-  version?: string,
+  version?: string
   local?: boolean
-  src?: string,
+  src?: string
   createFolder?: boolean
 }
 
@@ -21,19 +21,17 @@ export interface TweenodeBuildConfig {
     forceDebug?: boolean
     additionalFlags?: string[]
   }
-
 }
 
 export interface TweenodeSetupConfig {
   tweegoBinaries?: {
-    version: string,
+    version: string
     customUrl?: string
-  },
+  }
   storyFormats?: {
-    useTweegoBuiltin: boolean,
+    useTweegoBuiltin: boolean
     formats?: StoryFormat[]
   }
-
 }
 
 export interface TweenodeConfig {
@@ -43,8 +41,9 @@ export interface TweenodeConfig {
 
 let cache: TweenodeConfig
 
-export const loadConfig = async (customPath?: string): Promise<TweenodeConfig> => {
-
+export const loadConfig = async (
+  customPath?: string
+): Promise<TweenodeConfig> => {
   if (cache) {
     return cache
   }
@@ -72,7 +71,6 @@ export const loadConfig = async (customPath?: string): Promise<TweenodeConfig> =
 
   cache = config
   return config
-
 }
 
 export const defaultConfig: Partial<TweenodeConfig> = {
@@ -86,7 +84,7 @@ export const defaultConfig: Partial<TweenodeConfig> = {
   },
   setup: {
     tweegoBinaries: {
-      version: '2.1.1',
+      version: '2.1.1'
     },
     storyFormats: {
       useTweegoBuiltin: false,
@@ -118,7 +116,7 @@ export const defaultConfig: Partial<TweenodeConfig> = {
  *   },
  *   output: {
  *   mode: 'file',
- *     fileName: './dist/index.html'  
+ *     fileName: './dist/index.html'
  *   }
  * })
  * @param config {TweenodeConfig}

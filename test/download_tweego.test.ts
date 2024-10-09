@@ -1,11 +1,21 @@
-import { beforeEach, describe, expect, it, test, vi } from "vitest";
-import { fs, vol } from "memfs";
-import { resolve } from "node:path";
-import { downloadCustomStoryFormats, downloadTweego, extractTweego, getTweenodeFolderPath } from "../src/download_tweego";
-import { getTweegoUrl } from "../src/get_tweego_url";
-import { defaultConfig } from "../src/handle_config";
+import { beforeEach, describe, expect, it, test, vi } from 'vitest'
+import { fs, vol } from 'memfs'
+import { resolve } from 'node:path'
 
-const tweegoBinariePath = resolve(getTweenodeFolderPath(), process.platform == 'win32' ? './tweego.exe' : './tweego')
+import {
+  downloadCustomStoryFormats,
+  downloadTweego,
+  extractTweego,
+  getTweenodeFolderPath
+} from '../src/download_tweego'
+
+import { getTweegoUrl } from '../src/get_tweego_url'
+import { defaultConfig } from '../src/handle_config'
+
+const tweegoBinariePath = resolve(
+  getTweenodeFolderPath(),
+  process.platform == 'win32' ? './tweego.exe' : './tweego'
+)
 
 vi.mock('node:fs')
 vi.mock('node:fs/promises')
@@ -15,10 +25,9 @@ describe('Tweego download and setup', () => {
     vi.resetAllMocks()
     vol.reset()
     vol.mkdirSync(process.cwd(), { recursive: true })
-
   })
 
-  it.skip('Should download the correct given version of Tweego and create the Tweenode folder', async () => {
+  it('Should download the correct given version of Tweego and create the Tweenode folder', async () => {
     const archiveName = getTweegoUrl().split('/').pop()
 
     await downloadTweego()
@@ -50,11 +59,8 @@ describe('Tweego download and setup', () => {
     const cases = defaultConfig.setup!.storyFormats!.formats!
 
     test.each(cases)(`$name format folder should exist`, ({ name }) => {
-
       const formatPath = resolve(path, name)
       expect(fs.existsSync(formatPath)).toEqual(true)
     })
-
   })
-
 })
