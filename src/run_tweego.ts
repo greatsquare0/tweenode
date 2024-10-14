@@ -2,7 +2,11 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
 import { openSync, closeSync } from 'fs'
 
-import { loadConfig, TweenodeBuildConfig } from './handle_config'
+import {
+  loadConfig,
+  TweenodeBuildConfig,
+  TweenodeSetupConfig,
+} from './handle_config'
 
 const tweenodeFolderPath = resolve(process.cwd(), './.tweenode/')
 const tweegoBinariePath = resolve(
@@ -22,93 +26,167 @@ interface InstanceData {
   code?: string
 }
 
-export interface TweenodeInstance extends InstanceData {
+export interface TweenodeInstance {
   verifyBinarie: typeof verifyBinarie
   process: (buildOptions?: TweenodeBuildConfig) => Promise<void>
   kill: Function
 }
 
-export const tweenode = (setupOptions?: TweenodeBuildConfig) => {
-  //const setupConfig = { ...loadedConfig.build, ...setupOptions }
-  const instanceData: InstanceData = {
-    isRunning: false,
-    pid: undefined,
-    output: undefined,
-    errors: undefined,
-    tweego: undefined,
+// export const tweenode = (setupOptions?: TweenodeBuildConfig) => {
+//   //const setupConfig = { ...loadedConfig.build, ...setupOptions }
+//   const instanceData: InstanceData = {
+//     isRunning: false,
+//     pid: undefined,
+//     output: undefined,
+//     errors: undefined,
+//     tweego: undefined,
+//   }
+
+//   const instance = {
+//     verifyBinarie,
+
+//     async process(buildOptions?: TweenodeBuildConfig) {
+//       const buildConfig = { ...loadedConfig.build, ...buildOptions }
+
+//       if ((await verifyBinarie()) == false) {
+//         throw new Error('Failed to start Tweego')
+//       }
+
+//       const args = getArgs(buildConfig)
+
+//       try {
+//         instanceData.tweego = spawn(tweegoBinariePath, args)
+//         instanceData.isRunning = true
+//         instanceData.pid = instanceData.tweego.pid
+//       } catch (error) {
+//         instanceData.isRunning = false
+//         this.kill()
+//         throw new Error(`Error while running Tweego: ${error}`)
+//       }
+
+//       const stdio = await processStdio(instanceData, this.kill)
+//       instanceData.output = stdio.output
+//       instanceData.errors = stdio.error
+
+//       if (instanceData.errors) {
+//         throw new Error(instanceData.errors.message)
+//       }
+
+//       if (buildConfig.output.mode == 'string') {
+//         if (!/^<!DOCTYPE\s+html>/.test(instanceData.output!)) {
+//           instanceData.isRunning = false
+//           throw new Error(instanceData.output!.split('\n')[0])
+//         }
+
+//         instanceData.isRunning = false
+//         instanceData.code = instanceData.output
+//         this.kill()
+//       } else {
+//         const isOutputLocked = getLock(
+//           resolve(process.cwd(), buildOptions?.output.fileName!)
+//         )
+//         if (isOutputLocked) {
+//           this.kill()
+//         }
+//       }
+//     },
+//     kill() {
+//       if (instanceData.tweego !== undefined) {
+//         let success = instanceData.tweego.kill()
+
+//         if (success) {
+//           instanceData.isRunning = false
+//         } else {
+//           setTimeout(() => {
+//             if (!instanceData.tweego!.killed) {
+//               success = instanceData.tweego!.kill('SIGKILL')
+//               if (success) {
+//                 instanceData.isRunning = false
+//               } else {
+//                 throw new Error('Failed to kill tweego process')
+//               }
+//             }
+//           }, 1500)
+//         }
+//       }
+//     },
+//   }
+//   return instance
+// }
+
+export class Tweenode {
+  setupConfig: TweenodeSetupConfig
+  buildConfig: TweenodeBuildConfig
+  childProcess: ChildProcessWithoutNullStreams | undefined
+  isRunning: boolean
+  private stdio: undefined | ProcessStdioReturn
+
+  constructor(setupOptions?: TweenodeSetupConfig) {
+    this.setupConfig = { ...loadedConfig.setup, ...setupOptions }
+    this.buildConfig = { ...loadedConfig.build }
+    this.childProcess = undefined
+    this.isRunning = false
+    this.stdio = undefined
   }
 
-  const instance = {
-    ...instanceData,
-    verifyBinarie,
+  async process(buildOptions?: TweenodeBuildConfig) {
+    this.buildConfig = { ...this.buildConfig, ...buildOptions }
 
-    async process(buildOptions?: TweenodeBuildConfig) {
-      const buildConfig = { ...loadedConfig.build, ...buildOptions }
+    const args = getArgs(this.buildConfig)
 
-      if ((await verifyBinarie()) == false) {
-        throw new Error('Failed to start Tweego')
+    try {
+      this.childProcess = spawn(tweegoBinariePath, args)
+      this.isRunning = true
+    } catch (error) {
+      this.isRunning = false
+      this.kill()
+      throw new Error(`Error while running Tweego: ${error}`)
+    }
+
+    this.stdio = await processStdio(this)
+    if (this.stdio !== undefined) {
+      if (this.stdio.error) {
+        throw new Error(this.stdio.error.message)
       }
 
-      const args = getArgs(buildConfig)
-
-      try {
-        instanceData.tweego = spawn(tweegoBinariePath, args)
-        instanceData.isRunning = true
-        instanceData.pid = instanceData.tweego.pid
-      } catch (error) {
-        instanceData.isRunning = false
-        this.kill()
-        throw new Error(`Error while running Tweego: ${error}`)
-      }
-
-      const stdio = await processStdio(instanceData, this.kill)
-      instanceData.output = stdio.output
-      instanceData.errors = stdio.error
-
-      if (instanceData.errors) {
-        throw new Error(instanceData.errors.message)
-      }
-
-      if (buildConfig.output.mode == 'string') {
-        if (!/^<!DOCTYPE\s+html>/.test(instanceData.output!)) {
-          instanceData.isRunning = false
-          throw new Error(instanceData.output!.split('\n')[0])
+      if (this.buildConfig.output.mode == 'string') {
+        if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
+          this.isRunning = false
+          throw new Error(this.stdio.output!.split('\n')[0])
         }
 
-        instanceData.isRunning = false
-        instanceData.code = instanceData.output
-        this.kill()
+        this.isRunning = false
+        return this.stdio.output
       } else {
-        const isOutputLocked = getLock(
-          resolve(process.cwd(), buildOptions?.output.fileName!)
-        )
-        if (isOutputLocked) {
+        if (
+          getLock(resolve(process.cwd(), this.buildConfig.output.fileName!))
+        ) {
           this.kill()
         }
       }
-    },
-    kill() {
-      if (instanceData.tweego !== undefined) {
-        let success = instanceData.tweego.kill()
-
-        if (success) {
-          instanceData.isRunning = false
-        } else {
-          setTimeout(() => {
-            if (!instanceData.tweego!.killed) {
-              success = instanceData.tweego!.kill('SIGKILL')
-              if (success) {
-                instanceData.isRunning = false
-              } else {
-                throw new Error('Failed to kill tweego process')
-              }
-            }
-          }, 1500)
-        }
-      }
-    },
+    }
   }
-  return instance
+
+  kill() {
+    if (this.childProcess !== undefined) {
+      let success = this.childProcess.kill()
+
+      if (success) {
+        this.isRunning = false
+      } else {
+        setTimeout(() => {
+          if (this.childProcess!.killed == false) {
+            success = this.childProcess!.kill('SIGKILL')
+            if (success) {
+              this.isRunning = false
+            } else {
+              throw new Error('Failed to kill tweego process')
+            }
+          }
+        }, 1500)
+      }
+    }
+  }
 }
 
 const getLock = (filePath: string) => {
@@ -125,30 +203,34 @@ const getLock = (filePath: string) => {
   }
 }
 
+interface ProcessStdioReturn {
+  output: string | undefined
+  error: Error | undefined
+}
+
 const processStdio = (
-  instanceData: InstanceData,
-  kill: Function
-): Promise<{ output: string | undefined; error: Error | undefined }> => {
+  instance: InstanceType<typeof Tweenode>
+): Promise<ProcessStdioReturn> => {
   return new Promise((resolve, reject) => {
-    instanceData.tweego!.stderr.on('error', error => {
+    instance.childProcess!.stderr.on('error', error => {
       reject({ output: undefined, error: error })
     })
 
-    instanceData.tweego!.stdout.on('data', data => {
+    instance.childProcess!.stdout.on('data', data => {
       resolve({ output: data.toString(), error: undefined })
     })
 
-    instanceData.tweego!.stderr.on('data', data => {
+    instance.childProcess!.stderr.on('data', data => {
       resolve({ output: data.toString(), error: undefined })
     })
 
-    instanceData.tweego!.on('spawn', () => {
-      instanceData.isRunning = true
+    instance.childProcess!.on('spawn', () => {
+      instance.isRunning = true
     })
 
-    instanceData.tweego!.on('exit', (code, signal) => {
+    instance.childProcess!.on('exit', (code, signal) => {
       console.log(code, signal)
-      kill()
+      instance.kill()
     })
   })
 }

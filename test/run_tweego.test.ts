@@ -11,7 +11,7 @@ import {
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { tweenode, TweenodeInstance } from '../src/run_tweego'
+import { Tweenode } from '../src/run_tweego'
 import { verifyBinarie } from '../src/verify_tweego'
 import { setupTweego } from '../src/download_tweego'
 
@@ -47,7 +47,7 @@ describe.only('Run Tweego', () => {
   })
 
   describe('Story compilation', () => {
-    let tweego: TweenodeInstance
+    let tweego: InstanceType<typeof Tweenode>
     beforeEach(async () => {
       prepareCwd()
       await setupTweego()
@@ -72,7 +72,7 @@ describe.only('Run Tweego', () => {
         })
       }
 
-      tweego = tweenode()
+      tweego = new Tweenode()
     }, 999999)
 
     afterEach(() => {
@@ -83,7 +83,7 @@ describe.only('Run Tweego', () => {
       'should compile the story and return the code as a string',
       { timeout: 99999 },
       async () => {
-        await tweego.process({
+        const result = await tweego.process({
           input: {
             storyDir: resolve(localCwd, 'Story/'),
           },
@@ -92,7 +92,7 @@ describe.only('Run Tweego', () => {
           },
         })
 
-        expect(/^<!DOCTYPE\s+html>/.test(tweego.code!)).toBe(true)
+        expect(/^<!DOCTYPE\s+html>/.test(result!)).toBe(true)
       }
     )
 
