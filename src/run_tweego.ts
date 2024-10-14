@@ -132,7 +132,6 @@ const processStdio = (
     })
 
     instance.childProcess!.on('exit', (code, signal) => {
-      console.log(code, signal)
       instance.kill()
     })
   })

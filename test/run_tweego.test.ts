@@ -9,7 +9,7 @@ import {
   vi,
 } from 'vitest'
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { relative, resolve } from 'node:path'
 
 import { Tweenode } from '../src/run_tweego'
 import { verifyBinarie } from '../src/verify_tweego'
@@ -20,21 +20,23 @@ vi.unmock('node:fs/promises')
 const localCwd = resolve(process.cwd(), 'test/tmp')
 
 describe.only('Run Tweego', () => {
+  let originalCwd = ''
   beforeEach(() => {
     vi.resetAllMocks()
+    originalCwd = process.cwd()
     if (existsSync(localCwd)) {
-      resetCwd()
+      resetCwd(originalCwd)
     }
   })
 
   describe.skip('Verify Tweego Installation', () => {
     beforeEach(async () => {
-      prepareCwd()
+      prepareCwd(originalCwd)
       await setupTweego()
     }, 20000)
 
     afterEach(() => {
-      resetCwd()
+      resetCwd(originalCwd)
     })
 
     it.skip('Should correctly setup and run', { repeats: 3 }, async () => {
@@ -49,7 +51,7 @@ describe.only('Run Tweego', () => {
   describe('Story compilation', () => {
     let tweego: InstanceType<typeof Tweenode>
     beforeEach(async () => {
-      prepareCwd()
+      prepareCwd(originalCwd)
       await setupTweego()
 
       const files = [
@@ -75,38 +77,46 @@ describe.only('Run Tweego', () => {
       tweego = new Tweenode()
     }, 999999)
 
-    afterEach(() => {
-      resetCwd()
+    afterAll(() => {
+      resetCwd(originalCwd)
     })
 
-    it(
-      'should compile the story and return the code as a string',
-      { timeout: 99999 },
-      async () => {
-        const result = await tweego.process({
-          input: {
-            storyDir: resolve(localCwd, 'Story/'),
-          },
-          output: {
-            mode: 'string',
-          },
-        })
+    it('should compile the story and return the code as a string', async () => {
+      const result = await tweego.process({
+        input: {
+          storyDir: resolve(localCwd, 'Story/'),
+        },
+        output: {
+          mode: 'string',
+        },
+      })
 
-        expect(/^<!DOCTYPE\s+html>/.test(result!)).toBe(true)
-      }
-    )
+      expect(/^<!DOCTYPE\s+html>/.test(result!)).toBe(true)
+    })
 
     it.todo('should compile the story and write the code to a file', () => {})
   })
 })
 
-const prepareCwd = () => {
+const prepareCwd = (originalCwd: string) => {
   if (!existsSync(localCwd)) {
     mkdirSync(localCwd)
   }
+
+  try {
+    process.chdir(relative(originalCwd, localCwd))
+  } catch (error) {
+    throw new Error(`Error while changin cwd(): ${error}`)
+  }
 }
 
-const resetCwd = () => {
+const resetCwd = (originalCwd: string) => {
+  try {
+    process.chdir(resolve(originalCwd))
+  } catch (error) {
+    throw new Error(`Error while changin cwd(): ${error}`)
+  }
+
   if (existsSync(localCwd)) {
     rmSync(localCwd, { recursive: true })
   }
