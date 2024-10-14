@@ -22,16 +22,40 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
+
       - id: setup-bun
         name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
+
+      - id: setup-pnpm
+        name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          standalone: true
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - id: prepare-cache
+        name: Prepare cache for pnpm
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - id: install-deps
         name: Install dependencies
+        run: pnpm install
+
+      - id: test
+        name: Run test
         run: |
-          bun install
-      # - id: test
-      #   name: Run test
-      #   run: |
-      #     bun test
+          pnpm run test

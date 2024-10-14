@@ -22,6 +22,12 @@ interface InstanceData {
   code?: string
 }
 
+export interface TweenodeInstance extends InstanceData {
+  verifyBinarie: typeof verifyBinarie
+  process: (buildOptions?: TweenodeBuildConfig) => Promise<void>
+  kill: Function
+}
+
 export const tweenode = (setupOptions?: TweenodeBuildConfig) => {
   //const setupConfig = { ...loadedConfig.build, ...setupOptions }
   const instanceData: InstanceData = {
@@ -29,7 +35,7 @@ export const tweenode = (setupOptions?: TweenodeBuildConfig) => {
     pid: undefined,
     output: undefined,
     errors: undefined,
-    tweego: undefined
+    tweego: undefined,
   }
 
   const instance = {
@@ -83,15 +89,24 @@ export const tweenode = (setupOptions?: TweenodeBuildConfig) => {
     },
     kill() {
       if (instanceData.tweego !== undefined) {
-        const success = instanceData.tweego.kill()
+        let success = instanceData.tweego.kill()
 
         if (success) {
           instanceData.isRunning = false
         } else {
-          throw new Error('Failed to kill tweego process')
+          setTimeout(() => {
+            if (!instanceData.tweego!.killed) {
+              success = instanceData.tweego!.kill('SIGKILL')
+              if (success) {
+                instanceData.isRunning = false
+              } else {
+                throw new Error('Failed to kill tweego process')
+              }
+            }
+          }, 1500)
         }
       }
-    }
+    },
   }
   return instance
 }

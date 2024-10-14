@@ -101,7 +101,7 @@ export const extractTweego = async () => {
   const archiveName = getTweegoUrl().split('/').pop()
   const archivePath = resolve(getTweenodeFolderPath(), archiveName!)
 
-  extract(archivePath, getTweenodeFolderPath())
+  await extract(archivePath, getTweenodeFolderPath())
   await rm(archivePath)
 }
 
@@ -134,7 +134,7 @@ export const downloadCustomStoryFormats = async () => {
 
     await downloadFile(format.src!, resolve(path, archiveName!))
     if (archiveName?.split('.').pop() == 'zip') {
-      extract(resolve(path, archiveName!), path)
+      await extract(resolve(path, archiveName!), path)
       await rm(resolve(path, archiveName!))
     }
   }

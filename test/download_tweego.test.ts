@@ -6,7 +6,7 @@ import {
   downloadCustomStoryFormats,
   downloadTweego,
   extractTweego,
-  getTweenodeFolderPath
+  getTweenodeFolderPath,
 } from '../src/download_tweego'
 
 import { getTweegoUrl } from '../src/get_tweego_url'

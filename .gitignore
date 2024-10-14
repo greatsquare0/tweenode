@@ -4,3 +4,4 @@ dist
 src_old/
 .tweenode
 test/index.txt
+coverage/
