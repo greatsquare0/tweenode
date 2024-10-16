@@ -1,7 +1,5 @@
-import { loadConfig } from './handle_config'
+import { defineConfig } from './handle_config'
+import { Tweenode } from './run_tweego'
+import { setupTweego } from './download_tweego'
 
-const tweenode = async () => {
-  console.log(await loadConfig())
-}
-
-export default tweenode
+export { Tweenode, setupTweego, defineConfig }

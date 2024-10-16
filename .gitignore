@@ -5,3 +5,5 @@ src_old/
 .tweenode
 test/index.txt
 coverage/
+__tests__/temp/
+dist/

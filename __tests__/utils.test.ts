@@ -1,19 +1,53 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { fs, vol } from 'memfs'
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
+import { mkdirSync, rmSync, writeFileSync } from 'fs-extra'
+import { resolve } from 'node:path'
+import { nanoid } from 'nanoid'
+
+import { viChdir } from './util/helpers'
 import { downloadFile, generateChecksum } from '../src/utils'
-import { randomUUID } from 'node:crypto'
-vi.mock('node:fs')
-vi.mock('node:fs/promises')
 
 describe('Utils', () => {
   beforeEach(() => {
-    vol.reset()
     vi.resetAllMocks()
+    viChdir('util')
+    rmSync(process.cwd(), { recursive: true, force: true })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  afterAll(() => {
+    rmSync(resolve(process.cwd(), '__tests__/temp/util'), {
+      recursive: true,
+      force: true,
+    })
   })
 
   describe('generateChecksum', () => {
     describe('Should return a valid checksum given a file path and algorithm', () => {
-      const path = '/testFile.txt'
+      beforeEach(() => {
+        viChdir(resolve(process.cwd(), `${nanoid(6)}/`))
+        mkdirSync(process.cwd(), { recursive: true })
+
+        writeFileSync(
+          resolve(process.cwd(), path),
+          'lorem ipsum sit dolor amen',
+          {
+            encoding: 'utf-8',
+          }
+        )
+      })
+
+      const path = 'testFile.txt'
       const cases = [
         {
           algorithm: 'md5',
@@ -28,9 +62,6 @@ describe('Utils', () => {
       test.each(cases)(
         `File ${path} with algorithm: $algorithm, should result in the hash: $hash`,
         async ({ algorithm, hash }) => {
-          fs.writeFileSync(path, 'lorem ipsum sit dolor amen', {
-            encoding: 'utf-8',
-          })
           const result = await generateChecksum(path, algorithm)
           expect(result).toEqual(hash)
         }
@@ -54,12 +85,17 @@ describe('Utils', () => {
       },
     ]
 
+    beforeEach(() => {
+      viChdir(resolve(process.cwd(), `${nanoid(6)}/`))
+    })
+
     describe('Should be able to successively download and save a file', () => {
       test.each(genericTestFiles)(
         `Donwloading file: $url with checksum $hash`,
         async ({ url, hash }) => {
-          fs.mkdirSync('/tmp/download', { recursive: true })
-          const path = `/tmp/download/${randomUUID()}.webm`
+          mkdirSync(resolve(process.cwd()), { recursive: true })
+
+          const path = resolve(process.cwd(), `${nanoid(8)}.webm`)
           await downloadFile(url, path)
           const result = await generateChecksum(path, 'sha256')
           expect(result).toEqual(hash)

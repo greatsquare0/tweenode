@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import { spawn } from 'node:child_process'
-import { loadConfig } from './handle_config'
+import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process'
+//import { loadConfig } from './handle_config'
 import { getTweenodeFolderPath } from './download_tweego'
-const loadedConfig = await loadConfig()
+//const loadedConfig = await loadConfig()
 import { chmodSync } from 'node:fs'
 
 export const verifyBinarie = () => {
@@ -15,17 +15,18 @@ export const verifyBinarie = () => {
     chmodSync(tweegoBinariePath, 0o755)
   }
 
-  const tweego = spawn(tweegoBinariePath, ['--version'])
+  let tweego: ChildProcessWithoutNullStreams
+
+  try {
+    tweego = spawn(tweegoBinariePath, ['--version'])
+  } catch (error) {
+    throw new Error(`Failed to start Tweego: ${error}`)
+  }
+
   return new Promise((resolve, reject) => {
     let worked = false
     tweego.stderr.on('data', output => {
-      if (
-        output
-          .toString()
-          .includes(
-            `tweego, version ${loadedConfig.setup.tweegoBinaries!.version}`
-          )
-      ) {
+      if (output.toString().includes(`Tweego (a Twee compiler in Go)`)) {
         worked = true
       } else {
         worked = false

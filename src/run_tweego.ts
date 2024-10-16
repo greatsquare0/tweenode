@@ -1,21 +1,16 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
-import { openSync, closeSync } from 'fs'
-
+import { outputFile } from 'fs-extra'
 import {
   loadConfig,
   TweenodeBuildConfig,
   TweenodeSetupConfig,
 } from './handle_config'
 
-const tweenodeFolderPath = resolve(process.cwd(), './.tweenode/')
-const tweegoBinariePath = resolve(
-  tweenodeFolderPath,
-  process.platform == 'win32' ? './tweego.exe' : './tweego'
-)
 const loadedConfig = await loadConfig()
 
 import { verifyBinarie } from './verify_tweego'
+import { getTweenodeFolderPath } from './download_tweego'
 
 export class Tweenode {
   setupConfig: TweenodeSetupConfig
@@ -23,6 +18,7 @@ export class Tweenode {
   childProcess: ChildProcessWithoutNullStreams | undefined
   isRunning: boolean
   private stdio: undefined | ProcessStdioReturn
+  tweegoBinariePath: string
 
   constructor(setupOptions?: TweenodeSetupConfig) {
     this.setupConfig = { ...loadedConfig.setup, ...setupOptions }
@@ -30,15 +26,25 @@ export class Tweenode {
     this.childProcess = undefined
     this.isRunning = false
     this.stdio = undefined
+    this.tweegoBinariePath = resolve(
+      getTweenodeFolderPath(),
+      process.platform == 'win32' ? './tweego.exe' : './tweego'
+    )
   }
 
   async process(buildOptions?: TweenodeBuildConfig) {
     this.buildConfig = { ...this.buildConfig, ...buildOptions }
 
+    if ((await verifyBinarie()) == false) {
+      throw new Error('Failed to start Tweego')
+    }
+
     const args = getArgs(this.buildConfig)
 
     try {
-      this.childProcess = spawn(tweegoBinariePath, args)
+      this.childProcess = spawn(this.tweegoBinariePath, args, {
+        detached: true,
+      })
       this.isRunning = true
     } catch (error) {
       this.isRunning = false
@@ -49,23 +55,27 @@ export class Tweenode {
     this.stdio = await processStdio(this)
     if (this.stdio !== undefined) {
       if (this.stdio.error) {
-        throw new Error(this.stdio.error.message)
+        throw new Error(`Tweego error: ${this.stdio.error}`)
       }
 
       if (this.buildConfig.output.mode == 'string') {
         if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
-          this.isRunning = false
+          this.kill()
           throw new Error(this.stdio.output!.split('\n')[0])
         }
 
         this.isRunning = false
         return this.stdio.output
       } else {
-        if (
-          getLock(resolve(process.cwd(), this.buildConfig.output.fileName!))
-        ) {
+        if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
           this.kill()
+          throw new Error(this.stdio.output!.split('\n')[0])
         }
+
+        await outputFile(
+          this.buildConfig.output!.fileName!,
+          this.stdio!.output!
+        )
       }
     }
   }
@@ -92,19 +102,19 @@ export class Tweenode {
   }
 }
 
-const getLock = (filePath: string) => {
-  try {
-    const file = openSync(filePath, 'r+')
-    closeSync(file)
-    return false
-  } catch (error: any) {
-    if (error.code === 'EBUSY' || error.code === 'EACEES') {
-      return true
-    } else {
-      throw new Error(`Error: ${error}`)
-    }
-  }
-}
+// const getLock = (filePath: string) => {
+//   try {
+//     const file = openSync(filePath, 'r+')
+//     closeSync(file)
+//     return false
+//   } catch (error: any) {
+//     if (error.code === 'EBUSY' || error.code === 'EACEES') {
+//       return true
+//     } else {
+//       throw new Error(`Error: ${error}`)
+//     }
+//   }
+// }
 
 interface ProcessStdioReturn {
   output: string | undefined
@@ -132,7 +142,9 @@ const processStdio = (
     })
 
     instance.childProcess!.on('exit', (code, signal) => {
-      instance.kill()
+      if (instance.childProcess!.exitCode !== 0) {
+        instance.kill()
+      }
     })
   })
 }
@@ -141,10 +153,6 @@ const getArgs = (buildConfig: TweenodeBuildConfig) => {
   let args: string[] = []
 
   args.push(buildConfig.input.storyDir)
-
-  buildConfig.output.mode == 'file'
-    ? args.push(`--output=${buildConfig.output.fileName}`)
-    : null
 
   buildConfig.input.head ? args.push(`--head=${buildConfig.input.head}`) : null
 

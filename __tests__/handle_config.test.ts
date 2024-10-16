@@ -3,7 +3,7 @@ import {
   defaultConfig,
   defineConfig,
   loadConfig,
-  type TweenodeConfig
+  type TweenodeConfig,
 } from '../src/handle_config'
 
 describe('Tweenode Configuration', () => {
@@ -21,11 +21,11 @@ describe('Tweenode Configuration', () => {
       const customConfig: TweenodeConfig = {
         build: {
           output: { mode: 'file', fileName: 'index.html' },
-          input: { storyDir: './src/story' }
+          input: { storyDir: './src/story' },
         },
         setup: {
           tweegoBinaries: {
-            version: 'v2.2.0'
+            version: 'v2.2.0',
           },
           storyFormats: {
             useTweegoBuiltin: false,
@@ -33,17 +33,17 @@ describe('Tweenode Configuration', () => {
               {
                 name: 'Example',
                 version: '2.0',
-                src: 'https://examplesource.com/file.zip'
-              }
-            ]
-          }
-        }
+                src: 'https://examplesource.com/file.zip',
+              },
+            ],
+          },
+        },
       }
 
       const result = defineConfig(customConfig)
       expect(result).toEqual({
         ...defaultConfig,
-        ...customConfig
+        ...customConfig,
       })
     })
   })

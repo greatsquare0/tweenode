@@ -1,12 +1,8 @@
-import {
-  createReadStream,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs'
+import { createReadStream } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { writeFile } from 'node:fs/promises'
-import { resolve as pathResolve } from 'path'
+import { mkdir } from 'node:fs/promises'
+import { join, resolve as pathResolve } from 'path'
+import { outputFile, readFile } from 'fs-extra'
 import AdmZip from 'adm-zip'
 
 export const generateChecksum = (
@@ -43,26 +39,27 @@ export const downloadFile = async (fileUrl: string, dist: string) => {
 
     const fileBuffer = await response.arrayBuffer()
     const arrayBuffer = new Uint8Array(fileBuffer)
-    await writeFile(pathResolve(process.cwd(), dist), arrayBuffer)
+    await outputFile(pathResolve(process.cwd(), dist), arrayBuffer)
   } catch (error) {
     throw new Error(`Fetch error: ${error}`)
   }
 }
 
 export const extract = async (zipPath: string, extractPath: string) => {
-  const buffer = readFileSync(zipPath)
+  const buffer = await readFile(zipPath)
   const zip = new AdmZip(buffer)
-
   const zipEntries = zip.getEntries()
 
-  for await (const entry of zipEntries) {
-    const filePath = `${extractPath}/${entry.entryName}`
+  const extractPromises = zipEntries.map(async entry => {
+    const filePath = join(extractPath, entry.entryName)
 
     if (entry.isDirectory) {
-      mkdirSync(filePath, { recursive: true })
+      await mkdir(filePath, { recursive: true })
     } else {
-      const arrayBuffer = new Uint8Array(entry.getData())
-      writeFileSync(filePath, arrayBuffer)
+      const data = new Uint8Array(entry.getData())
+      await outputFile(filePath, data)
     }
-  }
+  })
+
+  await Promise.all(extractPromises)
 }

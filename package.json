@@ -7,8 +7,8 @@
   "description": "",
   "scripts": {
     "dev": "bun run --watch build.mts",
-    "test": "bunx vitest",
-    "test:ui": "bunx vitest --ui",
+    "test": "vitest",
+    "test:ui": "vitest watch --ui",
     "build": "bun run build.mts"
   },
   "files": [
@@ -30,14 +30,16 @@
   "author": "greatsquare0",
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",
-    "@types/bun": "^1.0.0",
-    "@vitest/ui": "^2.1.1",
-    "bun-plugin-dts": "^0.2.1",
-    "memfs": "^4.12.0",
-    "typescript": "^5.2.2",
-    "vitest": "^2.1.1"
+    "@types/bun": "^1.1.11",
+    "@vitest/ui": "^2.1.3",
+    "bun-plugin-dts": "^0.2.4",
+    "nanoid": "^5.0.7",
+    "typescript": "^5.6.3",
+    "@types/fs-extra": "^11.0.4",
+    "vitest": "^2.1.3"
   },
   "dependencies": {
-    "adm-zip": "^0.5.16"
+    "adm-zip": "^0.5.16",
+    "fs-extra": "^11.2.0"
   }
 }

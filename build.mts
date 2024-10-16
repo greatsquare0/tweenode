@@ -1,5 +1,8 @@
 import dts from 'bun-plugin-dts'
-import { copyFileSync } from "node:fs";
+import { rmSync } from 'fs-extra'
+import { resolve } from 'node:path'
+
+rmSync(resolve(process.cwd(), 'dist'), { recursive: true, force: true })
 
 await Bun.build({
   entrypoints: ['./src/index.ts'],
@@ -7,10 +10,8 @@ await Bun.build({
   sourcemap: 'external',
   target: 'node',
   minify: false,
-  external: ['extract-zip', 'node-fetch', 'smol-toml'],
+  external: ['adm-zip', 'fs-extra'],
   plugins: [dts()],
 })
 
-
-copyFileSync('./config_template.toml', './dist/config_template.toml')
 console.log('Build finished')
