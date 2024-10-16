@@ -6,9 +6,9 @@
   "type": "module",
   "description": "",
   "scripts": {
-    "dev": "bun run --watch build.mts",
-    "test": "vitest",
-    "test:ui": "vitest watch --ui",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:watch/ui": "vitest watch --ui",
     "build": "bun run build.mts"
   },
   "files": [
