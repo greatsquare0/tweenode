@@ -10,7 +10,7 @@
 </p>
 
 <div align='center'>
-  <img alt="Version Badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgreatsquare0%2Ftweenode%2Frefs%2Fheads%2Fmain%2Fpackage.json&query=%24.version&label=Version">
+  <img alt="Version Badge"  src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgreatsquare0%2Ftweenode%2Fmain%2Fpackage.json&query=%24.version&label=Version">
   <img alt="CI Workflow Status" src="https://img.shields.io/github/actions/workflow/status/greatsquare0/tweenode/ci.yml?style=flat&label=Testing">
   <img alt="Build Workflow Status" src="https://img.shields.io/github/actions/workflow/status/greatsquare0/tweenode/release.yml?style=flat&label=Release">
 </div>
