@@ -46,8 +46,8 @@ await tweego.process({
 
 ### Requirements:
 
-- [Bun](bun.sh)
-- [pnpm](pnpm.io)
+- [Bun](https://bun.sh)
+- [pnpm](https://pnpm.io)
 
 ```bash
 # install dependencies
