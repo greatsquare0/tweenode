@@ -62,14 +62,18 @@ pnpm run build
 ---
 ### Special thanks to these projects (And the people behind them):
 
-
-[sugarcube-starter by nijikokun](https://github.com/nijikokun/sugarcube-starter/) (Main source of inspiration)
-[tweego-bin by double-a-stories](https://github.com/double-a-stories/tweego-bin)
-[tweego-node by mattrossman](https://github.com/mattrossman/tweego-node)
+[Tweego by tmedwards](https://github.com/tmedwards/tweego) <br>
+[sugarcube-starter by nijikokun](https://github.com/nijikokun/sugarcube-starter/) (Main source of inspiration) <br>
+[tweego-bin by double-a-stories](https://github.com/double-a-stories/tweego-bin) <br>
+[tweego-node by mattrossman](https://github.com/mattrossman/tweego-node) <br>
 
 ## License
 
 MIT
+
+## Disclaimer
+
+This project is not affiliated or endorsed by Twine or The Interactive Fiction Technology Foundation
 
 ---
 
