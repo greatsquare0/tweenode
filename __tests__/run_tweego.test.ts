@@ -43,7 +43,7 @@ describe('Run Tweego', () => {
     beforeEach(async () => {
       viChdir(resolve(process.cwd(), `${nanoid(6)}/`))
       await setupTweego()
-    }, 32000)
+    })
 
     afterEach(() => {
       rmSync(process.cwd(), { recursive: true, force: true })
@@ -82,7 +82,7 @@ describe('Run Tweego', () => {
           }
         )
       }
-    }, 999999)
+    })
 
     afterAll(() => {
       rmSync(path, { recursive: true, force: true })

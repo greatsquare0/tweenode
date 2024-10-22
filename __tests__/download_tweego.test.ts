@@ -61,7 +61,7 @@ describe('Tweego download and setup', () => {
     expect(content[0]).toEqual(archiveName)
   })
 
-  it('Should correctly unzip the archive', { timeout: 32000 }, async () => {
+  it('Should correctly unzip the archive', async () => {
     await downloadTweego()
     await extractTweego()
     expect(existsSync(getTweegoBinariePath())).toEqual(true)
@@ -69,7 +69,6 @@ describe('Tweego download and setup', () => {
 
   describe.todo(
     'Should correctly download specified storyformats',
-    { timeout: 99999 },
     async () => {
       let path = ''
 
@@ -83,7 +82,7 @@ describe('Tweego download and setup', () => {
 
         rmSync(path, { recursive: true, force: true })
         await downloadCustomStoryFormats()
-      }, 99999)
+      })
 
       const cases = defaultConfig.setup!.storyFormats!.formats!
 

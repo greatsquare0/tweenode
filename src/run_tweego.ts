@@ -44,6 +44,10 @@ export class Tweenode {
     try {
       this.childProcess = spawn(this.tweegoBinariePath, args, {
         detached: true,
+        env: {
+          ...process.env,
+          TWEEGO_PATH: resolve(getTweenodeFolderPath(), 'storyformats'),
+        },
       })
       this.isRunning = true
     } catch (error) {

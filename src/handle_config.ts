@@ -67,8 +67,9 @@ export const loadConfig = async (
     return defaultConfig as TweenodeConfig
   }
 
-  const config = await import(configPath)
+  const imported = await import(configPath)
 
+  const config = imported.default
   cache = config
   return config
 }
@@ -76,15 +77,15 @@ export const loadConfig = async (
 export const defaultConfig: Partial<TweenodeConfig> = {
   build: {
     output: {
-      mode: 'string'
+      mode: 'string',
     },
     input: {
-      storyDir: ''
-    }
+      storyDir: '',
+    },
   },
   setup: {
     tweegoBinaries: {
-      version: '2.1.1'
+      version: '2.1.1',
     },
     storyFormats: {
       useTweegoBuiltin: false,
@@ -94,17 +95,17 @@ export const defaultConfig: Partial<TweenodeConfig> = {
           version: '2.37.0',
           local: false,
           src: 'https://github.com/tmedwards/sugarcube-2/releases/download/v2.37.0/sugarcube-2.37.0-for-twine-2.1-local.zip',
-          createFolder: false
+          createFolder: false,
         },
         {
           name: 'harlowe4-unstable',
           version: '4.0.0',
           src: 'https://twine2.neocities.org/harlowe4-unstable.js',
-          createFolder: true
-        }
-      ]
-    }
-  }
+          createFolder: true,
+        },
+      ],
+    },
+  },
 }
 
 /**
