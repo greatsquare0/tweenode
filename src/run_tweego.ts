@@ -22,7 +22,7 @@ export class Tweenode {
 
   constructor(setupOptions?: TweenodeSetupConfig) {
     this.setupConfig = { ...loadedConfig.setup, ...setupOptions }
-    this.buildConfig = { ...loadedConfig.build }
+    this.buildConfig = { ...loadedConfig.build! }
     this.childProcess = undefined
     this.isRunning = false
     this.stdio = undefined
