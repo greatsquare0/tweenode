@@ -4,21 +4,64 @@ import { resolve } from 'node:path'
 export interface StoryFormat {
   name: string
   version?: string
+  /**
+   * Currently, not implemented
+   */
   local?: boolean
+  /**
+   * If compacted, must be a zip
+   */
   src?: string
+  /**
+   * Some may provide a folder inside the .zip (Like SugarCube), some won't, use this to create a folder for the format
+   *
+   * It will use the provided `name` property
+   */
   createFolder?: boolean
 }
 
 export interface TweenodeBuildConfig {
   output: {
+    /**
+     * When using `'string'` output, you can pass the compiled story to a variable
+     * @example
+     *
+     * const tweego = new Tweenode()
+     *
+     * const result = await tweego.process({
+     *  build: {
+     *      input: {...}
+     *      output: {
+     *        mode: 'string'
+     *     }
+     *   }
+     * })
+     *
+     * console.log(result) // Will print out the compiled story HTML
+     */
     mode: 'file' | 'string'
     fileName?: string
   }
   input: {
+    /**
+     * Path to where your .twee files are
+     */
     storyDir: string
+    /**
+     * Path to html file to be included in the head of the compiled story
+     */
     head?: string
+    /**
+     * Path to your stylesheet (Naming may change in the future)
+     */
     modules?: string
+    /**
+     * Use Twine test mode, some formats offer debug tools
+     */
     forceDebug?: boolean
+    /**
+     * Array of aditional flags, like `--no-trim`
+     */
     additionalFlags?: string[]
   }
 }
@@ -26,17 +69,30 @@ export interface TweenodeBuildConfig {
 export interface TweenodeSetupConfig {
   tweegoBinaries?: {
     version: string
+    /**
+     * Must be a .zip
+     */
     customUrl?: string
   }
+  /**
+   * Used to donwload other formats not included in Tweego
+   * (WIP)
+   */
   storyFormats?: {
+    /**
+     * When `false`, it will delete all formats shipped with Tweego
+     */
     useTweegoBuiltin: boolean
+    /**
+     * Array of custom formats to be downloaded
+     */
     formats?: StoryFormat[]
   }
 }
 
 export interface TweenodeConfig {
-  build: TweenodeBuildConfig
-  setup: TweenodeSetupConfig
+  build?: TweenodeBuildConfig
+  setup?: TweenodeSetupConfig
 }
 
 let cache: TweenodeConfig
@@ -111,14 +167,19 @@ export const defaultConfig: Partial<TweenodeConfig> = {
 /**
  * Defines configs for use in Tweenode
  * @example
+ * // ./tweenode.config.ts (Can be .js)
+ *import { defineConfig, type TweenodeConfig } from 'tweenode'
+ *
  * export default defineConfig({
- *   input: {
- *     storyDir: './src/story/'
+ *   build: {
+ *     input: {
+ *       storyDir: './path/to/story/'
+ *     },
+ *     output: {
+ *       mode:'file',
+ *       fileName: './path/to/output/index.html'
+ *     }
  *   },
- *   output: {
- *   mode: 'file',
- *     fileName: './dist/index.html'
- *   }
  * })
  * @param config {TweenodeConfig}
  */
