@@ -90,7 +90,12 @@ export interface TweenodeSetupConfig {
   }
 }
 
+export interface TweenodeDebugConfig {
+  writeToLog: boolean
+}
+
 export interface TweenodeConfig {
+  debug?: TweenodeDebugConfig
   build?: TweenodeBuildConfig
   setup?: TweenodeSetupConfig
 }
@@ -131,6 +136,9 @@ export const loadConfig = async (
 }
 
 export const defaultConfig: Partial<TweenodeConfig> = {
+  debug: {
+    writeToLog: false,
+  },
   build: {
     output: {
       mode: 'string',

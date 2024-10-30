@@ -88,9 +88,9 @@ export const downloadTweego = async () => {
   }
 
   const url =
-    config.setup.tweegoBinaries!.customUrl !== ''
+    config.setup!.tweegoBinaries!.customUrl !== ''
       ? getTweegoUrl()
-      : config.setup.tweegoBinaries!.customUrl
+      : config.setup!.tweegoBinaries!.customUrl
   await downloadFile(
     url!,
     resolve(getTweenodeFolderPath(), url!.split('/').pop()!)
@@ -106,7 +106,7 @@ export const extractTweego = async () => {
 }
 
 export const downloadCustomStoryFormats = async () => {
-  for await (const format of config.setup.storyFormats!.formats!) {
+  for await (const format of config.setup!.storyFormats!.formats!) {
     const archiveName = format.src!.split('/').pop()
 
     let path = ''
@@ -145,7 +145,7 @@ export const setupTweego = async () => {
     await downloadTweego()
     await extractTweego()
 
-    if (config.setup.storyFormats!.formats!.length > 0) {
+    if (config.setup!.storyFormats!.formats!.length > 0) {
       await downloadCustomStoryFormats()
     }
   }

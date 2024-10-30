@@ -3,13 +3,13 @@ const config = await loadConfig()
 
 const ARCH_MAPPING = {
   ia32: 'x86',
-  x64: 'x64'
+  x64: 'x64',
 } as const
 
 const PLATFORM_MAPPING = {
   darwin: 'macos',
   linux: 'linux',
-  win32: 'windows'
+  win32: 'windows',
 } as const
 
 export const getTweegoUrl = () => {
@@ -44,6 +44,6 @@ export const getTweegoUrl = () => {
   const architecture = ARCH_MAPPING[arch]
 
   return `https://github.com/tmedwards/tweego/releases/download/v${
-    config.setup.tweegoBinaries!.version
-  }/tweego-${config.setup.tweegoBinaries!.version}-${os}-${architecture}.zip`
+    config.setup!.tweegoBinaries!.version
+  }/tweego-${config.setup!.tweegoBinaries!.version}-${os}-${architecture}.zip`
 }

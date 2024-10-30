@@ -1,9 +1,10 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
-import { outputFile } from 'fs-extra'
+import { appendFileSync, outputFile, rmSync } from 'fs-extra'
 import {
   loadConfig,
   TweenodeBuildConfig,
+  TweenodeDebugConfig,
   TweenodeSetupConfig,
 } from './handle_config'
 
@@ -15,6 +16,7 @@ import { getTweenodeFolderPath } from './download_tweego'
 export class Tweenode {
   setupConfig: TweenodeSetupConfig
   buildConfig: TweenodeBuildConfig
+  debugConfig: TweenodeDebugConfig
   childProcess: ChildProcessWithoutNullStreams | undefined
   isRunning: boolean
   private stdio: undefined | ProcessStdioReturn
@@ -23,6 +25,7 @@ export class Tweenode {
   constructor(setupOptions?: TweenodeSetupConfig) {
     this.setupConfig = { ...loadedConfig.setup, ...setupOptions }
     this.buildConfig = { ...loadedConfig.build! }
+    this.debugConfig = { ...loadedConfig.debug! }
     this.childProcess = undefined
     this.isRunning = false
     this.stdio = undefined
@@ -30,13 +33,15 @@ export class Tweenode {
       getTweenodeFolderPath(),
       process.platform == 'win32' ? './tweego.exe' : './tweego'
     )
+
+    rmSync(resolve(getTweenodeFolderPath(), 'tweenode.log'), { force: true })
   }
 
   async process(buildOptions?: TweenodeBuildConfig) {
     this.buildConfig = { ...this.buildConfig, ...buildOptions }
 
     if ((await verifyBinarie()) == false) {
-      throw new Error('Failed to start Tweego')
+      this.errorHandler('Failed to start Tweego')
     }
 
     const args = getArgs(this.buildConfig)
@@ -52,28 +57,28 @@ export class Tweenode {
       this.isRunning = true
     } catch (error) {
       this.isRunning = false
+      this.errorHandler(`Error while running Tweego: ${error}`)
       this.kill()
-      throw new Error(`Error while running Tweego: ${error}`)
     }
 
     this.stdio = await processStdio(this)
     if (this.stdio !== undefined) {
       if (this.stdio.error) {
-        throw new Error(`Tweego error: ${this.stdio.error}`)
+        this.errorHandler(`Tweego error: ${this.stdio.error}`)
       }
 
       if (this.buildConfig.output.mode == 'string') {
         if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
+          this.errorHandler(this.stdio.output!)
           this.kill()
-          throw new Error(this.stdio.output!.split('\n')[0])
         }
 
         this.isRunning = false
         return this.stdio.output
       } else {
         if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
+          this.errorHandler(this.stdio.output!)
           this.kill()
-          throw new Error(this.stdio.output!.split('\n')[0])
         }
 
         await outputFile(
@@ -83,7 +88,24 @@ export class Tweenode {
       }
     }
   }
+  private errorHandler(error: string) {
+    console.log(error)
+    const errorTolog = `[${formattedTime()}]\n${error}\n\n`
 
+    if (this.debugConfig.writeToLog) {
+      appendFileSync(
+        resolve(getTweenodeFolderPath(), 'tweenode.log'),
+        errorTolog,
+        'utf-8'
+      )
+    }
+
+    if (error.split('\n').length > 10) {
+      throw new Error(error.split('\n')[0])
+    } else {
+      throw new Error(error)
+    }
+  }
   kill() {
     if (this.childProcess !== undefined) {
       let success = this.childProcess.kill()
@@ -97,7 +119,7 @@ export class Tweenode {
             if (success) {
               this.isRunning = false
             } else {
-              throw new Error('Failed to kill tweego process')
+              this.errorHandler('Failed to kill tweego process')
             }
           }
         }, 1500)
@@ -119,6 +141,18 @@ export class Tweenode {
 //     }
 //   }
 // }
+
+const formattedTime = () => {
+  const date = new Date()
+
+  const formated = new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(date)
+
+  return formated
+}
 
 interface ProcessStdioReturn {
   output: string | undefined
