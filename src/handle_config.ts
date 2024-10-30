@@ -156,9 +156,9 @@ export const defaultConfig: Partial<TweenodeConfig> = {
       formats: [
         {
           name: 'sugarcube-2',
-          version: '2.37.0',
+          version: '2.37.3',
           local: false,
-          src: 'https://github.com/tmedwards/sugarcube-2/releases/download/v2.37.0/sugarcube-2.37.0-for-twine-2.1-local.zip',
+          src: 'https://www.motoslave.net/sugarcube/download.php/2/sugarcube-2.37.3-for-twine-2.1-local.zip',
           createFolder: false,
         },
         {

@@ -65,7 +65,7 @@ describe('Run Tweego', () => {
         {
           name: 'StoryData.twee',
           content:
-            ':: StoryData\n{\n"ifid": "D674C58C-DEFA-4F70-B7A2-27742230C0FC",\n"format": "SugarCube",\n"format-version": "2.30.0"\n}',
+            ':: StoryData\n{\n"ifid": "D674C58C-DEFA-4F70-B7A2-27742230C0FC",\n"format": "SugarCube",\n"format-version": "2.37.3"\n}',
         },
         {
           name: 'Start.twee',
