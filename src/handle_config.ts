@@ -1,5 +1,6 @@
-import { existsSync } from 'fs'
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export interface StoryFormat {
   name: string
@@ -126,6 +127,10 @@ export const loadConfig = async (
 
   if (!existsSync(configPath)) {
     return defaultConfig as TweenodeConfig
+  }
+
+  if (process.platform === 'win32') {
+    configPath = pathToFileURL(configPath).href
   }
 
   const imported = await import(configPath)

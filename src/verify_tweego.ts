@@ -1,9 +1,8 @@
 import { resolve } from 'node:path'
-import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process'
-//import { loadConfig } from './handle_config'
-import { getTweenodeFolderPath } from './download_tweego'
-//const loadedConfig = await loadConfig()
 import { chmodSync } from 'node:fs'
+import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process'
+
+import { getTweenodeFolderPath } from './download_tweego'
 
 export const verifyBinarie = () => {
   const tweegoBinariePath = resolve(

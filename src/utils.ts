@@ -1,7 +1,7 @@
 import { createReadStream } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { mkdir } from 'node:fs/promises'
-import { join, resolve as pathResolve } from 'path'
+import { join, resolve as pathResolve } from 'node:path'
 import { outputFile, readFile } from 'fs-extra'
 import AdmZip from 'adm-zip'
 
