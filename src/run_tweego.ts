@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
-import { appendFileSync, outputFile, rmSync } from 'fs-extra'
+import { appendFileSync } from 'node:fs'
+import { outputFile, removeSync } from 'fs-extra/esm'
 import {
   loadConfig,
   TweenodeBuildConfig,
@@ -34,7 +35,7 @@ export class Tweenode {
       process.platform == 'win32' ? './tweego.exe' : './tweego'
     )
 
-    rmSync(resolve(getTweenodeFolderPath(), 'tweenode.log'), { force: true })
+    removeSync(resolve(getTweenodeFolderPath(), 'tweenode.log'))
   }
 
   async process(buildOptions?: TweenodeBuildConfig) {

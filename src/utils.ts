@@ -1,8 +1,8 @@
 import { createReadStream } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { join, resolve as pathResolve } from 'node:path'
-import { outputFile, readFile } from 'fs-extra'
+import { outputFile } from 'fs-extra/esm'
 import AdmZip from 'adm-zip'
 
 export const generateChecksum = (

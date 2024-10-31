@@ -1,8 +1,8 @@
 import dts from 'bun-plugin-dts'
-import { rmSync } from 'fs-extra'
+import { removeSync } from 'fs-extra/esm'
 import { resolve } from 'node:path'
 
-rmSync(resolve(process.cwd(), 'dist'), { recursive: true, force: true })
+removeSync(resolve(process.cwd(), 'dist'))
 
 await Bun.build({
   entrypoints: ['./src/index.ts'],
