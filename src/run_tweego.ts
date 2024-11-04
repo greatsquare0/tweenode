@@ -191,17 +191,27 @@ const getArgs = (buildConfig: TweenodeBuildConfig) => {
 
   args.push(buildConfig.input.storyDir)
 
-  buildConfig.input.head ? args.push(`--head=${buildConfig.input.head}`) : null
-
-  buildConfig.input.modules
-    ? args.push(`--module=${buildConfig.input.modules}`)
+  buildConfig.input.htmlHead
+    ? args.push(`--head=${buildConfig.input.htmlHead}`)
     : null
+
+  if (buildConfig.input.modules) {
+    buildConfig.input.modules.forEach(module => {
+      args.push(`--module=${module}`)
+    })
+  }
+
+  buildConfig.input.styles
+    ? args.push(`--module=${buildConfig.input.styles}`)
+    : null
+
+  buildConfig.input.scripts ? args.push(buildConfig.input.scripts) : null
 
   buildConfig.input.additionalFlags
     ? args.push(...buildConfig.input.additionalFlags)
     : null
 
-  buildConfig.input.forceDebug ? args.push('-t') : null
+  buildConfig.input.useTwineTestMode ? args.push('-t') : null
 
   return args
 }

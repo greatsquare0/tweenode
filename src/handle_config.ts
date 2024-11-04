@@ -50,18 +50,38 @@ export interface TweenodeBuildConfig {
     storyDir: string
     /**
      * Path to html file to be included in the head of the compiled story
+     * @deprecated use `htmlHead`
      */
     head?: string
     /**
-     * Path to your stylesheet (Naming may change in the future)
+     * Path to html file to be included in the head of the compiled story
      */
-    modules?: string
+    htmlHead?: string
+    /**
+     * Path to supported files for Tweego to bundle, see supported on Tweego docs
+     * @see https://www.motoslave.net/tweego/docs/#usage-options
+     */
+    modules?: string[]
+    /**
+     * Path to your stylesheet file or directory
+     */
+    styles?: string
+    /**
+     * Path to your script file or directory
+     */
+    scripts?: string
     /**
      * Use Twine test mode, some formats offer debug tools
+     * @deprecated Use `useTwineTestMode`
      */
     forceDebug?: boolean
     /**
+     * Use Twine test mode, some formats offer debug tools
+     */
+    useTwineTestMode?: boolean
+    /**
      * Array of aditional flags, like `--no-trim`
+     * @see https://www.motoslave.net/tweego/docs/#usage-options
      */
     additionalFlags?: string[]
   }
