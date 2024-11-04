@@ -187,6 +187,7 @@ export const defaultConfig: Partial<TweenodeConfig> = {
  * Defines configs for use in Tweenode
  * # This may get removed
  * # Currently, only works as intended on Bun
+ * ### (May work on Node and Deno on Unix-like systems)
  * @example
  * // ./tweenode.config.ts (Can be .js)
  *import { defineConfig, type TweenodeConfig } from 'tweenode'
