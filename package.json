@@ -1,6 +1,6 @@
 {
   "name": "tweenode",
-  "version": "0.2.5",
+  "version": "0.2.6-beta",
   "description": "A neat JS wrapper for Tweego",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,8 +41,5 @@
   "dependencies": {
     "adm-zip": "^0.5.16",
     "fs-extra": "^11.2.0"
-  },
-"publishConfig": {
-  
-}
+  }
 }

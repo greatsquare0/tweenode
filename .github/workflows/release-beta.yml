@@ -1,9 +1,9 @@
-name: Release
+name: Release beta
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*-beta*'
 
 permissions:
   id-token: write
@@ -12,8 +12,7 @@ env:
   NPM_CONFIG_PROVENANCE: true
 
 jobs:
-  release:
-    if: ${{ !contains(github.ref, 'beta') }}
+  release-beta:
     runs-on: ubuntu-latest
     steps:
       - id: checkout
@@ -50,3 +49,4 @@ jobs:
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
+          tag: beta
