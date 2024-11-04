@@ -119,7 +119,6 @@ export const loadConfig = async (
 
   if (customPath) {
     configPath = resolve(process.cwd(), customPath)
-    console.log(configPath)
   } else {
     const tsPath = resolve(process.cwd(), 'tweenode.config.js')
     const jsPath = resolve(process.cwd(), 'tweenode.config.ts')

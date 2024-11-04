@@ -47,7 +47,6 @@ export class Tweenode {
     const args = getArgs(this.buildConfig)
 
     try {
-      console.log(args)
       this.childProcess = spawn(this.tweegoBinariePath, args, {
         detached: this.debugConfig.detachProcess,
         env: {
@@ -90,7 +89,6 @@ export class Tweenode {
     }
   }
   private errorHandler(error: string) {
-    console.log(error)
     const errorTolog = `[${formattedTime()}]\n${error}\n\n`
 
     if (this.debugConfig.writeToLog) {
