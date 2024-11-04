@@ -41,5 +41,8 @@
   "dependencies": {
     "adm-zip": "^0.5.16",
     "fs-extra": "^11.2.0"
-  }
+  },
+"publishConfig": {
+  
+}
 }

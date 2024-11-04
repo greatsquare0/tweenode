@@ -9,6 +9,7 @@ await Bun.build({
   outdir: './dist',
   sourcemap: 'external',
   target: 'node',
+  format: 'esm',
   minify: false,
   external: ['adm-zip', 'fs-extra'],
   plugins: [dts()],

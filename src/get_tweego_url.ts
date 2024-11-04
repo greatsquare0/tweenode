@@ -1,5 +1,4 @@
-import { loadConfig } from './handle_config'
-const config = await loadConfig()
+import { config } from './state'
 
 const ARCH_MAPPING = {
   ia32: 'x86',

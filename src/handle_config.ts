@@ -82,8 +82,13 @@ export interface TweenodeSetupConfig {
   storyFormats?: {
     /**
      * When `false`, it will delete all formats shipped with Tweego
+     * @deprecated use cleanTweegoBuiltins
      */
-    useTweegoBuiltin: boolean
+    useTweegoBuiltin?: boolean
+    /**
+     * When `true`, it will delete all formats shipped with Tweego
+     */
+    cleanTweegoBuiltins: boolean
     /**
      * Array of custom formats to be downloaded
      */
@@ -93,6 +98,7 @@ export interface TweenodeSetupConfig {
 
 export interface TweenodeDebugConfig {
   writeToLog: boolean
+  detachProcess: boolean
 }
 
 export interface TweenodeConfig {
@@ -143,6 +149,7 @@ export const loadConfig = async (
 export const defaultConfig: Partial<TweenodeConfig> = {
   debug: {
     writeToLog: false,
+    detachProcess: false,
   },
   build: {
     output: {
@@ -157,7 +164,7 @@ export const defaultConfig: Partial<TweenodeConfig> = {
       version: '2.1.1',
     },
     storyFormats: {
-      useTweegoBuiltin: false,
+      cleanTweegoBuiltins: false,
       formats: [
         {
           name: 'sugarcube-2',
@@ -179,6 +186,8 @@ export const defaultConfig: Partial<TweenodeConfig> = {
 
 /**
  * Defines configs for use in Tweenode
+ * # This may get removed
+ * # Currently, only works as intended on Bun
  * @example
  * // ./tweenode.config.ts (Can be .js)
  *import { defineConfig, type TweenodeConfig } from 'tweenode'

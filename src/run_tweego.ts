@@ -2,14 +2,13 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
 import { appendFileSync } from 'node:fs'
 import { outputFile, removeSync } from 'fs-extra/esm'
-import {
-  loadConfig,
+import type {
   TweenodeBuildConfig,
   TweenodeDebugConfig,
   TweenodeSetupConfig,
 } from './handle_config'
 
-const loadedConfig = await loadConfig()
+import { config as loadedConfig } from './state'
 
 import { verifyBinarie } from './verify_tweego'
 import { getTweenodeFolderPath } from './download_tweego'
@@ -48,8 +47,9 @@ export class Tweenode {
     const args = getArgs(this.buildConfig)
 
     try {
+      console.log(args)
       this.childProcess = spawn(this.tweegoBinariePath, args, {
-        detached: true,
+        detached: this.debugConfig.detachProcess,
         env: {
           ...process.env,
           TWEEGO_PATH: resolve(getTweenodeFolderPath(), 'storyformats'),

@@ -28,7 +28,7 @@ describe('Tweenode Configuration', () => {
             version: 'v2.2.0',
           },
           storyFormats: {
-            useTweegoBuiltin: false,
+            cleanTweegoBuiltins: false,
             formats: [
               {
                 name: 'Example',

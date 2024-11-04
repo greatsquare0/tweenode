@@ -2,15 +2,15 @@ import { existsSync } from 'node:fs'
 import { mkdir, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { loadConfig } from './handle_config'
+import { config } from './state'
 import { downloadFile, extract } from './utils'
 import { getTweegoUrl } from './get_tweego_url'
+import { TweenodeSetupConfig } from './handle_config'
+import { emptyDir } from 'fs-extra'
 
 export const getTweenodeFolderPath = () => {
   return resolve(process.cwd(), './.tweenode/')
 }
-
-const config = await loadConfig()
 
 // interface FileStat {
 //   name: string
@@ -82,15 +82,18 @@ const config = await loadConfig()
 
 // }
 
-export const downloadTweego = async () => {
+export const downloadTweego = async (options?: TweenodeSetupConfig) => {
+  let usedConfig = config.setup!.tweegoBinaries!
+  if (options?.tweegoBinaries) {
+    usedConfig = options!.tweegoBinaries
+  }
+
   if (!existsSync(getTweenodeFolderPath())) {
     await mkdir(getTweenodeFolderPath(), { recursive: true })
   }
 
   const url =
-    config.setup!.tweegoBinaries!.customUrl !== ''
-      ? getTweegoUrl()
-      : config.setup!.tweegoBinaries!.customUrl
+    usedConfig!.customUrl !== '' ? getTweegoUrl() : usedConfig!.customUrl
   await downloadFile(
     url!,
     resolve(getTweenodeFolderPath(), url!.split('/').pop()!)
@@ -105,8 +108,19 @@ export const extractTweego = async () => {
   await rm(archivePath)
 }
 
-export const downloadCustomStoryFormats = async () => {
-  for await (const format of config.setup!.storyFormats!.formats!) {
+export const downloadCustomStoryFormats = async (
+  options?: TweenodeSetupConfig
+) => {
+  let usedConfig = config.setup!.storyFormats
+  if (options?.storyFormats) {
+    usedConfig = options?.storyFormats
+  }
+
+  if (usedConfig!.cleanTweegoBuiltins) {
+    await emptyDir(resolve(getTweenodeFolderPath(), './storyformats/'))
+  }
+
+  for await (const format of usedConfig!.formats!) {
     const archiveName = format.src!.split('/').pop()
 
     let path = ''
@@ -140,13 +154,16 @@ export const downloadCustomStoryFormats = async () => {
   }
 }
 
-export const setupTweego = async () => {
+export const setupTweego = async (options?: TweenodeSetupConfig) => {
   if (!existsSync(getTweenodeFolderPath())) {
-    await downloadTweego()
+    await downloadTweego(options)
     await extractTweego()
 
-    if (config.setup!.storyFormats!.formats!.length > 0) {
-      await downloadCustomStoryFormats()
+    if (
+      config.setup!.storyFormats!.formats!.length > 0 ||
+      options!.storyFormats!.formats!.length > 0
+    ) {
+      await downloadCustomStoryFormats(options)
     }
   }
 }
