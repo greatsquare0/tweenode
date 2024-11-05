@@ -2,11 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
 import { appendFileSync } from 'node:fs'
 import { outputFile, removeSync } from 'fs-extra/esm'
-import type {
-  TweenodeBuildConfig,
-  TweenodeDebugConfig,
-  TweenodeSetupConfig,
-} from './handle_config'
+import type { TweenodeBuildConfig, TweenodeDebugConfig } from './handle_config'
 
 import { config as loadedConfig } from './state'
 
@@ -14,7 +10,6 @@ import { verifyBinarie } from './verify_tweego'
 import { getTweenodeFolderPath } from './download_tweego'
 
 export class Tweenode {
-  setupConfig: TweenodeSetupConfig
   buildConfig: TweenodeBuildConfig
   debugConfig: TweenodeDebugConfig
   childProcess: ChildProcessWithoutNullStreams | undefined
@@ -22,10 +17,9 @@ export class Tweenode {
   private stdio: undefined | ProcessStdioReturn
   tweegoBinariePath: string
 
-  constructor(setupOptions?: TweenodeSetupConfig) {
-    this.setupConfig = { ...loadedConfig.setup, ...setupOptions }
+  constructor(debugOptions?: TweenodeDebugConfig) {
     this.buildConfig = { ...loadedConfig.build! }
-    this.debugConfig = { ...loadedConfig.debug! }
+    this.debugConfig = { ...loadedConfig.debug!, ...debugOptions }
     this.childProcess = undefined
     this.isRunning = false
     this.stdio = undefined
