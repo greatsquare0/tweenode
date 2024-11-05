@@ -22,6 +22,7 @@ import { getTweegoUrl } from '../src/get_tweego_url'
 import { defaultConfig } from '../src/handle_config'
 import { viChdir } from './util/helpers'
 import { nanoid } from 'nanoid'
+import { removeSync } from 'fs-extra'
 
 const getTweegoBinariePath = () =>
   resolve(
@@ -80,7 +81,7 @@ describe('Tweego download and setup', () => {
         await downloadTweego()
         await extractTweego()
 
-        rmSync(path, { recursive: true, force: true })
+        removeSync(path)
         await downloadCustomStoryFormats()
       })
 

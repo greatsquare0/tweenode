@@ -12,16 +12,13 @@ import { setupTweego } from '../src/download_tweego'
 import { nanoid } from 'nanoid'
 import { viChdir } from './util/helpers'
 import { verifyBinarie } from '../src/verify_tweego'
-import { existsSync, outputFile, rmSync } from 'fs-extra'
+import { existsSync, outputFile, removeSync } from 'fs-extra'
 import { resolve } from 'node:path'
 import { Tweenode } from '../src/run_tweego'
 
 describe('Run Tweego', () => {
   beforeAll(() => {
-    rmSync(resolve(process.cwd(), '__tests__/temp/run/'), {
-      recursive: true,
-      force: true,
-    })
+    removeSync(resolve(process.cwd(), '__tests__/temp/run/'))
   })
 
   beforeEach(() => {
@@ -33,10 +30,7 @@ describe('Run Tweego', () => {
   })
 
   afterAll(() => {
-    rmSync(resolve(process.cwd(), '__tests__/temp/util'), {
-      recursive: true,
-      force: true,
-    })
+    removeSync(resolve(process.cwd(), '__tests__/temp/util'))
   })
 
   describe('Verify Tweego Installation', () => {
@@ -46,7 +40,7 @@ describe('Run Tweego', () => {
     })
 
     afterEach(() => {
-      rmSync(process.cwd(), { recursive: true, force: true })
+      removeSync(process.cwd())
     })
 
     it('should correctly setup and run', { repeats: 3 }, async () => {
@@ -85,7 +79,7 @@ describe('Run Tweego', () => {
     })
 
     afterAll(() => {
-      rmSync(path, { recursive: true, force: true })
+      removeSync(path)
     })
 
     it('should compile the story and return the code as a string', async () => {
