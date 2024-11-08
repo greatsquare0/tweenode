@@ -190,10 +190,21 @@ export const defaultConfig: Partial<TweenodeConfig> = {
           version: '2.37.3',
           local: false,
           src: 'https://www.motoslave.net/sugarcube/download.php/2/sugarcube-2.37.3-for-twine-2.1-local.zip',
-          createFolder: false,
         },
         {
-          name: 'harlowe4-unstable',
+          name: 'chapbook-2',
+          version: '2.2.0',
+          src: 'https://klembot.github.io/chapbook/use/2.2.0/format.js',
+          createFolder: true,
+        },
+        {
+          name: 'harlowe-3',
+          version: '3.3.9',
+          src: 'https://twine2.neocities.org/harlowe-3.3.9.js',
+          createFolder: true,
+        },
+        {
+          name: 'harlowe-4-unstable',
           version: '4.0.0',
           src: 'https://twine2.neocities.org/harlowe4-unstable.js',
           createFolder: true,

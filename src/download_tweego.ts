@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { config } from './state'
 import { downloadFile, extract } from './utils'
 import { getTweegoUrl } from './get_tweego_url'
-import { TweenodeSetupConfig } from './handle_config'
+import { StoryFormat, TweenodeSetupConfig } from './handle_config'
 import { emptyDir } from 'fs-extra'
 
 export const getTweenodeFolderPath = () => {
@@ -121,36 +121,50 @@ export const downloadCustomStoryFormats = async (
   }
 
   for await (const format of usedConfig!.formats!) {
-    const archiveName = format.src!.split('/').pop()
+    await downloadFormat(format)
+  }
+}
 
-    let path = ''
+const downloadFormat = async (format: StoryFormat) => {
+  const downloadedFileName = format.src!.split('/').pop()
+  let finalName = ''
+  let path = ''
 
-    if (format.createFolder) {
-      path = resolve(getTweenodeFolderPath(), `./storyformats/${format.name}`)
-
-      if (!existsSync(path)) {
-        await mkdir(path, { recursive: true })
-      } else {
-        await rm(path, { recursive: true })
-        await mkdir(path, { recursive: true })
-      }
+  if (downloadedFileName!.split('.').pop() == 'zip') {
+    finalName = downloadedFileName!
+  } else {
+    if (downloadedFileName! !== 'format.js') {
+      finalName = 'format.js'
     } else {
-      path = resolve(getTweenodeFolderPath(), './storyformats/')
-      const formatFolder = resolve(path, format.name)
-      if (!existsSync(path)) {
-        await mkdir(path, { recursive: true })
-      }
+      finalName = downloadedFileName
+    }
+  }
 
-      if (existsSync(formatFolder)) {
-        await rm(formatFolder, { recursive: true })
-      }
+  if (format.createFolder) {
+    path = resolve(getTweenodeFolderPath(), `./storyformats/${format.name}`)
+
+    if (!existsSync(path)) {
+      await mkdir(path, { recursive: true })
+    } else {
+      await rm(path, { recursive: true })
+      await mkdir(path, { recursive: true })
+    }
+  } else {
+    path = resolve(getTweenodeFolderPath(), './storyformats/')
+    const formatFolder = resolve(path, format.name)
+    if (!existsSync(path)) {
+      await mkdir(path, { recursive: true })
     }
 
-    await downloadFile(format.src!, resolve(path, archiveName!))
-    if (archiveName?.split('.').pop() == 'zip') {
-      await extract(resolve(path, archiveName!), path)
-      await rm(resolve(path, archiveName!))
+    if (existsSync(formatFolder)) {
+      await rm(formatFolder, { recursive: true })
     }
+  }
+
+  await downloadFile(format.src!, resolve(path, finalName!))
+  if (finalName?.split('.').pop() == 'zip') {
+    await extract(resolve(path, finalName!), path)
+    await rm(resolve(path, finalName!))
   }
 }
 

@@ -68,30 +68,26 @@ describe('Tweego download and setup', () => {
     expect(existsSync(getTweegoBinariePath())).toEqual(true)
   })
 
-  describe.todo(
-    'Should correctly download specified storyformats',
-    async () => {
-      let path = ''
+  describe('Should correctly download specified storyformats', async () => {
+    let path = ''
 
-      beforeAll(async () => {
-        viChdir(`download_and_setup/${nanoid(6)}`)
+    beforeEach(async () => {
+      viChdir(`download_and_setup/${nanoid(6)}`)
 
-        console.log(process.cwd())
-        path = resolve(process.cwd(), '.tweenode/storyformats')
-        await downloadTweego()
-        await extractTweego()
+      path = resolve(process.cwd(), '.tweenode/storyformats')
+      await downloadTweego()
+      await extractTweego()
 
-        removeSync(path)
-        await downloadCustomStoryFormats()
-      })
+      removeSync(path)
+      await downloadCustomStoryFormats()
+    })
 
-      const cases = defaultConfig.setup!.storyFormats!.formats!
+    const cases = defaultConfig.setup!.storyFormats!.formats!
 
-      test.each(cases)(`$name format folder should exist`, ({ name }) => {
-        const formatPath = resolve(path, name)
-        console.log(readdirSync(process.cwd(), { recursive: true }))
-        expect(existsSync(formatPath)).toEqual(true)
-      })
-    }
-  )
+    test.each(cases)(`$name format folder should exist`, ({ name }) => {
+      const formatPath = resolve(path, name)
+
+      expect(existsSync(formatPath)).toEqual(true)
+    })
+  })
 })
