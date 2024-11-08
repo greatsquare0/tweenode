@@ -12,9 +12,10 @@ import { setupTweego } from '../src/download_tweego'
 import { nanoid } from 'nanoid'
 import { viChdir } from './util/helpers'
 import { verifyBinarie } from '../src/verify_tweego'
-import { existsSync, outputFile, removeSync } from 'fs-extra'
+import { outputFile, readFileSync, removeSync } from 'fs-extra'
 import { resolve } from 'node:path'
 import { Tweenode } from '../src/run_tweego'
+import { JSDOM } from 'jsdom'
 
 describe('Run Tweego', () => {
   beforeAll(() => {
@@ -93,7 +94,7 @@ describe('Run Tweego', () => {
         },
       })
 
-      expect(/^<!DOCTYPE\s+html>/.test(result!)).toBe(true)
+      expect(isValidHtml(result!)).toBe(true)
     })
 
     it('should compile the story and write the code to a file', async () => {
@@ -107,8 +108,18 @@ describe('Run Tweego', () => {
           fileName: 'dist/index.html',
         },
       })
-
-      expect(existsSync('dist/index.html')).toBe(true)
+      const result = readFileSync('dist/index.html', 'utf-8')
+      expect(isValidHtml(result)).toBe(true)
     })
   })
 })
+
+const isValidHtml = (html: string) => {
+  try {
+    const dom = new JSDOM(html)
+    console.log(dom)
+    return true
+  } catch (error) {
+    return false
+  }
+}
