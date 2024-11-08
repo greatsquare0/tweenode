@@ -1,6 +1,7 @@
 import dts from 'bun-plugin-dts'
 import { removeSync } from 'fs-extra/esm'
 import { resolve } from 'node:path'
+import pkg from './package.json' assert { type: 'json' }
 
 removeSync(resolve(process.cwd(), 'dist'))
 
@@ -11,7 +12,7 @@ await Bun.build({
   target: 'node',
   format: 'esm',
   minify: false,
-  external: ['adm-zip', 'fs-extra'],
+  external: [...Object.keys(pkg.dependencies)],
   plugins: [dts()],
 })
 

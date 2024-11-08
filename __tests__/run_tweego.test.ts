@@ -115,11 +115,21 @@ describe('Run Tweego', () => {
 })
 
 const isValidHtml = (html: string) => {
-  try {
-    const dom = new JSDOM(html)
-    console.log(dom)
-    return true
-  } catch (error) {
+  if (!html.includes('</body>')) {
     return false
+  }
+
+  let dom: JSDOM
+
+  try {
+    dom = new JSDOM(html)
+  } catch (error) {
+    throw new Error(`Failed to parse HTML: ${error}`)
+  }
+
+  if (!dom.window.document.querySelector('tw-storydata')) {
+    return false
+  } else {
+    return true
   }
 }

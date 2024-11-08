@@ -117,8 +117,8 @@ export interface TweenodeSetupConfig {
 }
 
 export interface TweenodeDebugConfig {
-  writeToLog: boolean
-  detachProcess: boolean
+  writeToLog?: boolean
+  detachProcess?: boolean
 }
 
 export interface TweenodeConfig {

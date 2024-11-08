@@ -43,6 +43,7 @@ export class Tweenode {
     try {
       this.childProcess = spawn(this.tweegoBinariePath, args, {
         detached: this.debugConfig.detachProcess,
+        stdio: 'pipe',
         env: {
           ...process.env,
           TWEEGO_PATH: resolve(getTweenodeFolderPath(), 'storyformats'),
@@ -55,29 +56,35 @@ export class Tweenode {
       this.kill()
     }
 
-    this.stdio = await processStdio(this)
+    try {
+      this.stdio = await processStdio(this)
+    } catch (error) {
+      this.errorHandler(`Output processing error: ${error}`)
+    }
+
     if (this.stdio !== undefined) {
       if (this.stdio.error) {
         this.errorHandler(`Tweego error: ${this.stdio.error}`)
       }
 
-      if (this.buildConfig.output.mode == 'string') {
-        if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
-          this.errorHandler(this.stdio.output!)
-          this.kill()
-        }
+      if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
+        this.errorHandler(this.stdio.output!)
+        this.kill()
+      }
 
+      if (!this.stdio.output!.includes('</body>')) {
+        this.errorHandler(this.stdio.output!)
+        this.kill()
+      }
+
+      if (this.buildConfig.output.mode == 'string') {
         this.isRunning = false
         return this.stdio.output
       } else {
-        if (!/^<!DOCTYPE\s+html>/.test(this.stdio.output!)) {
-          this.errorHandler(this.stdio.output!)
-          this.kill()
-        }
-
         await outputFile(
           this.buildConfig.output!.fileName!,
-          this.stdio!.output!
+          this.stdio!.output!,
+          { encoding: 'utf8' }
         )
       }
     }
@@ -121,20 +128,6 @@ export class Tweenode {
   }
 }
 
-// const getLock = (filePath: string) => {
-//   try {
-//     const file = openSync(filePath, 'r+')
-//     closeSync(file)
-//     return false
-//   } catch (error: any) {
-//     if (error.code === 'EBUSY' || error.code === 'EACEES') {
-//       return true
-//     } else {
-//       throw new Error(`Error: ${error}`)
-//     }
-//   }
-// }
-
 const formattedTime = () => {
   const date = new Date()
 
@@ -149,23 +142,26 @@ const formattedTime = () => {
 
 interface ProcessStdioReturn {
   output: string | undefined
-  error: Error | undefined
+  error: Error | undefined | string
 }
 
 const processStdio = (
   instance: InstanceType<typeof Tweenode>
 ): Promise<ProcessStdioReturn> => {
+  let output = ''
+  let error = ''
+
   return new Promise((resolve, reject) => {
-    instance.childProcess!.stderr.on('error', error => {
-      reject({ output: undefined, error: error })
+    instance.childProcess!.stderr.on('error', stdError => {
+      error += stdError
     })
 
-    instance.childProcess!.stdout.on('data', data => {
-      resolve({ output: data.toString(), error: undefined })
+    instance.childProcess!.stdout.on('data', stdOutput => {
+      output += stdOutput.toString()
     })
 
-    instance.childProcess!.stderr.on('data', data => {
-      resolve({ output: data.toString(), error: undefined })
+    instance.childProcess!.stderr.on('data', stdOutput => {
+      output += stdOutput.toString()
     })
 
     instance.childProcess!.on('spawn', () => {
@@ -173,6 +169,12 @@ const processStdio = (
     })
 
     instance.childProcess!.on('exit', (code, signal) => {
+      if (error.length > 0) {
+        reject({ output: output, error: error })
+      } else {
+        resolve({ output: output, error: error })
+      }
+
       if (instance.childProcess!.exitCode !== 0) {
         instance.kill()
       }
