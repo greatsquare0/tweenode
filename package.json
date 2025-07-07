@@ -31,12 +31,15 @@
   "bugs": "https://github.com/greatsquare0/tweenode/issues",
   "author": "greatsquare0",
   "devDependencies": {
+    "@prettier/plugin-oxc": "^0.0.4",
     "@types/adm-zip": "^0.5.7",
     "@types/fs-extra": "^11.0.4",
     "@types/jsdom": "^21.1.7",
     "@vitest/ui": "^2.1.9",
     "jsdom": "^25.0.1",
     "nanoid": "^5.1.5",
+    "oxlint": "^1.6.0",
+    "prettier": "^3.6.2",
     "tsdown": "^0.12.9",
     "typescript": "^5.8.3",
     "vitest": "^2.1.9"
