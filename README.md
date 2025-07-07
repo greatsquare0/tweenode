@@ -21,16 +21,14 @@
 ## Basic usage
 
 ```js
-import { Tweenode, setupTweego } from 'tweenode'
+import { tweenode, setupTweego } from 'tweenode'
 
 // Will create a folder called .tweenode and download Tweego to it
 // Won't download again if the folder is already there
 await setupTweego()
 
 // Instantiate Tweenode, you can pass some setup configs
-const tweego = new Tweenode()
-
-await tweego.process({
+const tweego = await tweenode({
   input: {
     storyDir: 'path/to/story',
   },
@@ -39,6 +37,8 @@ await tweego.process({
     fileName: 'path/to/output.html',
   },
 })
+
+await tweego.process()
 
 ```
 
@@ -62,7 +62,6 @@ See [Tweego OS compatibility](https://www.motoslave.net/tweego/)
 ## Build from source
 
 ### Requirements:
-
 
 - [pnpm](https://pnpm.io)
 
