@@ -75,13 +75,17 @@ describe('Tweego download and setup', () => {
 
     beforeEach(async () => {
       viChdir(`download_and_setup/${nanoid(6)}`)
+      path = resolve(getTweenodeFolderPath(), 'storyformats/')
 
-      path = resolve(process.cwd(), '.tweenode/storyformats')
       await downloadTweego()
       await extractTweego()
 
       removeSync(path)
       await downloadCustomStoryFormats()
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
     })
 
     const cases = setupDefaults!.storyFormats!.formats!
