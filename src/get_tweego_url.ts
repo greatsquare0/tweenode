@@ -1,4 +1,4 @@
-import { config } from './state'
+import { TweenodeSetupOptions } from './download_tweego'
 
 const ARCH_MAPPING = {
   ia32: 'x86',
@@ -11,7 +11,7 @@ const PLATFORM_MAPPING = {
   win32: 'windows',
 } as const
 
-export const getTweegoUrl = () => {
+export const getTweegoUrl = (options: TweenodeSetupOptions) => {
   let { arch } = process
 
   if (process.arch === 'arm' || process.arch === 'arm64') {
@@ -43,6 +43,6 @@ export const getTweegoUrl = () => {
   const architecture = ARCH_MAPPING[arch]
 
   return `https://github.com/tmedwards/tweego/releases/download/v${
-    config.setup!.tweegoBinaries!.version
-  }/tweego-${config.setup!.tweegoBinaries!.version}-${os}-${architecture}.zip`
+    options.tweegoBinaries!.version
+  }/tweego-${options.tweegoBinaries!.version}-${os}-${architecture}.zip`
 }

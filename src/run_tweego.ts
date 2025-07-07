@@ -2,14 +2,103 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { resolve } from 'node:path'
 import { appendFileSync } from 'node:fs'
 import { outputFile, removeSync } from 'fs-extra/esm'
-import type { TweenodeBuildConfig, TweenodeDebugConfig } from './handle_config'
-
-import { config as loadedConfig } from './state'
 
 import { verifyBinarie } from './verify_tweego'
 import { getTweenodeFolderPath } from './download_tweego'
+import { deepmerge } from 'deepmerge-ts'
 
-export class Tweenode {
+export interface TweenodeBuildConfig {
+  output: {
+    /**
+     * When using `'string'` output, you can pass the compiled story to a variable
+     * @example
+     *
+     * const tweego = new Tweenode()
+     *
+     * const result = await tweego.process({
+     *  build: {
+     *      input: {...}
+     *      output: {
+     *        mode: 'string'
+     *     }
+     *   }
+     * })
+     *
+     * console.log(result) // Will print out the compiled story HTML
+     */
+    mode: 'file' | 'string'
+    fileName?: string
+  }
+  input: {
+    /**
+     * Path to where your .twee files are
+     */
+    storyDir: string
+    /**
+     * Path to html file to be included in the head of the compiled story
+     * @deprecated use `htmlHead`
+     */
+    head?: string
+    /**
+     * Path to html file to be included in the head of the compiled story
+     */
+    htmlHead?: string
+    /**
+     * Path to supported files for Tweego to bundle, see supported on Tweego docs
+     * @see https://www.motoslave.net/tweego/docs/#usage-options
+     */
+    modules?: string[]
+    /**
+     * Path to your stylesheet file or directory
+     */
+    styles?: string
+    /**
+     * Path to your script file or directory
+     */
+    scripts?: string
+    /**
+     * Use Twine test mode, some formats offer debug tools
+     * @deprecated Use `useTwineTestMode`
+     */
+    forceDebug?: boolean
+    /**
+     * Use Twine test mode, some formats offer debug tools
+     */
+    useTwineTestMode?: boolean
+    /**
+     * Array of aditional flags, like `--no-trim`
+     * @see https://www.motoslave.net/tweego/docs/#usage-options
+     */
+    additionalFlags?: string[]
+  }
+}
+
+export interface TweenodeDebugConfig {
+  writeToLog?: boolean
+  detachProcess?: boolean
+}
+
+export interface TweenodeOptions {
+  debug?: TweenodeDebugConfig
+  build: TweenodeBuildConfig
+}
+
+const defaultOptions = {
+  debug: {
+    writeToLog: false,
+    detachProcess: false,
+  },
+  build: {
+    output: {
+      mode: 'string',
+    },
+    input: {
+      storyDir: '',
+    },
+  },
+} as const
+
+class Tweenode {
   buildConfig: TweenodeBuildConfig
   debugConfig: TweenodeDebugConfig
   childProcess: ChildProcessWithoutNullStreams | undefined
@@ -17,9 +106,9 @@ export class Tweenode {
   private stdio: undefined | ProcessStdioReturn
   tweegoBinariePath: string
 
-  constructor(debugOptions?: TweenodeDebugConfig) {
-    this.buildConfig = { ...loadedConfig.build! }
-    this.debugConfig = { ...loadedConfig.debug!, ...debugOptions }
+  constructor(options: TweenodeOptions) {
+    this.buildConfig = options.build
+    this.debugConfig = options.debug ? options.debug : defaultOptions.debug
     this.childProcess = undefined
     this.isRunning = false
     this.stdio = undefined
@@ -128,6 +217,11 @@ export class Tweenode {
   }
 }
 
+export const tweenode = async (options: TweenodeOptions) => {
+  const config = deepmerge(defaultOptions, options) as TweenodeOptions
+  return new Tweenode(config)
+}
+
 const formattedTime = () => {
   const date = new Date()
 
@@ -168,7 +262,7 @@ const processStdio = (
       instance.isRunning = true
     })
 
-    instance.childProcess!.on('exit', (code, signal) => {
+    instance.childProcess!.on('exit', (_code, _signal) => {
       if (error.length > 0) {
         reject({ output: output, error: error })
       } else {

@@ -2,106 +2,118 @@ import { existsSync } from 'node:fs'
 import { mkdir, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { config } from './state'
 import { downloadFile, extract } from './utils'
 import { getTweegoUrl } from './get_tweego_url'
-import { StoryFormat, TweenodeSetupConfig } from './handle_config'
 import { emptyDir } from 'fs-extra'
+import { deepmerge } from 'deepmerge-ts'
+
+export interface StoryFormat {
+  name: string
+  version?: string
+  /**
+   * Currently, not implemented
+   */
+  local?: boolean
+  /**
+   * If compacted, must be a zip
+   */
+  src?: string
+  /**
+   * Some may provide a folder inside the .zip (Like SugarCube), some won't, use this to create a folder for the format
+   *
+   * It will use the provided `name` property
+   */
+  createFolder?: boolean
+}
+export interface TweenodeSetupOptions {
+  tweegoBinaries?: {
+    version: string
+    /**
+     * Must be a .zip
+     */
+    customUrl?: string
+  }
+  /**
+   * Used to donwload other formats not included in Tweego
+   * (WIP)
+   */
+  storyFormats?: {
+    /**
+     * When `false`, it will delete all formats shipped with Tweego
+     * @deprecated use cleanTweegoBuiltins
+     */
+    useTweegoBuiltin?: boolean
+    /**
+     * When `true`, it will delete all formats shipped with Tweego
+     */
+    cleanTweegoBuiltins: boolean
+    /**
+     * Array of custom formats to be downloaded
+     */
+    formats?: StoryFormat[]
+  }
+}
+
+export const setupDefaults = {
+  tweegoBinaries: {
+    version: '2.1.1',
+  },
+  storyFormats: {
+    cleanTweegoBuiltins: false,
+    formats: [
+      {
+        name: 'sugarcube-2',
+        version: '2.37.3',
+        local: false,
+        src: 'https://www.motoslave.net/sugarcube/download.php/2/sugarcube-2.37.3-for-twine-2.1-local.zip',
+      },
+      {
+        name: 'chapbook-2',
+        version: '2.2.0',
+        src: 'https://klembot.github.io/chapbook/use/2.2.0/format.js',
+        createFolder: true,
+      },
+      {
+        name: 'harlowe-3',
+        version: '3.3.9',
+        src: 'https://twine2.neocities.org/harlowe-3.3.9.js',
+        createFolder: true,
+      },
+      {
+        name: 'harlowe-4-unstable',
+        version: '4.0.0',
+        src: 'https://twine2.neocities.org/harlowe4-unstable.js',
+        createFolder: true,
+      },
+    ],
+  },
+} as const
 
 export const getTweenodeFolderPath = () => {
   return resolve(process.cwd(), './.tweenode/')
 }
 
-// interface FileStat {
-//   name: string
-//   hash: any
-//   path: string
-// }
-
-// const generateLock = async (lockFilePath: string) => {
-//   const tweenodeFolder = await readdir(getTweenodeFolderPath(), { recursive: true, withFileTypes: true })
-//   const fileStats: FileStat[] = []
-
-//   for await (const file of tweenodeFolder) {
-//     if (file.isFile()) {
-//       const filepath = resolve(file.parentPath, file.name)
-//       if (!filepath.includes('LICENSE')) {
-//         const hash = await generateChecksum(filepath, 'sha256')
-
-//         fileStats.push({
-//           name: file.name,
-//           path: relative(process.cwd(), filepath),
-//           hash: hash
-//         })
-//       }
-//     }
-//   }
-
-//   writeFile(lockFilePath, JSON.stringify({
-//     files: [
-//       ...fileStats
-//     ]
-//   }, null, '\t'), { encoding: 'utf-8' })
-// }
-
-// const verifyLock = async (lockFilePath: string) => {
-//   const lockFile = JSON.parse(await readFile(lockFilePath, { encoding: 'utf-8' })).files as FileStat[]
-//   const tweenodeFolder = await readdir(getTweenodeFolderPath(), { recursive: true, withFileTypes: true })
-
-//   const failedEntrys: FileStat[] = []
-//   const notTracked = []
-
-//   for await (const file of tweenodeFolder) {
-//     if (file.isFile()) {
-//       if (!file.name.includes('LICENSE')) {
-//         const filepath = resolve(file.parentPath, file.name)
-//         const hash = await generateChecksum(filepath, 'sha256')
-//         const temp: FileStat = {
-//           name: file.name,
-//           path: relative(process.cwd(), filepath),
-//           hash: hash
-//         }
-
-//         if (!lockFile.includes(temp)) {
-//           notTracked.push(temp)
-//         }
-//       }
-//     }
-//   }
-
-//   return failedEntrys
-// }
-
-// const verifyFiles = async () => {
-//   const lockFilePath = resolve(getTweenodeFolderPath(), 'lock.json')
-//   // if (existsSync(lockFilePath)) {
-//   //   await rm(lockFilePath)
-//   // }
-//   // await generateLock(lockFilePath)
-//   await verifyLock(lockFilePath)
-
-// }
-
-export const downloadTweego = async (options?: TweenodeSetupConfig) => {
-  let usedConfig = config.setup!.tweegoBinaries!
-  if (options?.tweegoBinaries) {
-    usedConfig = options!.tweegoBinaries
-  }
+export const downloadTweego = async (options?: TweenodeSetupOptions) => {
+  const config = deepmerge(setupDefaults, options) as TweenodeSetupOptions
 
   if (!existsSync(getTweenodeFolderPath())) {
     await mkdir(getTweenodeFolderPath(), { recursive: true })
   }
 
   const url =
-    usedConfig!.customUrl !== '' ? getTweegoUrl() : usedConfig!.customUrl
+    config.tweegoBinaries!.customUrl !== ''
+      ? getTweegoUrl(config)
+      : config!.tweegoBinaries!.customUrl
   await downloadFile(
     url!,
     resolve(getTweenodeFolderPath(), url!.split('/').pop()!)
   )
 }
 
-export const extractTweego = async () => {
-  const archiveName = getTweegoUrl().split('/').pop()
+export const extractTweego = async (options?: TweenodeSetupOptions) => {
+  const config = deepmerge(setupDefaults, options) as TweenodeSetupOptions
+
+  const archiveName = getTweegoUrl(config).split('/').pop()
   const archivePath = resolve(getTweenodeFolderPath(), archiveName!)
 
   await extract(archivePath, getTweenodeFolderPath())
@@ -109,19 +121,18 @@ export const extractTweego = async () => {
 }
 
 export const downloadCustomStoryFormats = async (
-  options?: TweenodeSetupConfig
+  options?: TweenodeSetupOptions
 ) => {
-  let usedConfig = config.setup!.storyFormats
-  if (options?.storyFormats) {
-    usedConfig = options?.storyFormats
-  }
+  const config = deepmerge(setupDefaults, options) as TweenodeSetupOptions
 
-  if (usedConfig!.cleanTweegoBuiltins) {
+  if (config!.storyFormats?.cleanTweegoBuiltins) {
     await emptyDir(resolve(getTweenodeFolderPath(), './storyformats/'))
   }
 
-  for await (const format of usedConfig!.formats!) {
-    await downloadFormat(format)
+  if (config!.storyFormats!.formats) {
+    for await (const format of config!.storyFormats!.formats) {
+      await downloadFormat(format)
+    }
   }
 }
 
@@ -168,13 +179,15 @@ const downloadFormat = async (format: StoryFormat) => {
   }
 }
 
-export const setupTweego = async (options?: TweenodeSetupConfig) => {
+export const setupTweego = async (options?: TweenodeSetupOptions) => {
+  const config = deepmerge(setupDefaults, options) as TweenodeSetupOptions
+
   if (!existsSync(getTweenodeFolderPath())) {
     await downloadTweego(options)
-    await extractTweego()
+    await extractTweego(options)
 
     if (
-      config.setup!.storyFormats!.formats!.length > 0 ||
+      config!.storyFormats!.formats!.length > 0 ||
       options!.storyFormats!.formats!.length > 0
     ) {
       await downloadCustomStoryFormats(options)

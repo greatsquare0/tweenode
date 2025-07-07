@@ -17,9 +17,10 @@ import {
   getTweenodeFolderPath,
   extractTweego,
   downloadCustomStoryFormats,
+  setupDefaults,
+  TweenodeSetupOptions,
 } from '../src/download_tweego'
 import { getTweegoUrl } from '../src/get_tweego_url'
-import { defaultConfig } from '../src/handle_config'
 import { viChdir } from './util/helpers'
 import { nanoid } from 'nanoid'
 import { removeSync } from 'fs-extra'
@@ -52,7 +53,8 @@ describe('Tweego download and setup', () => {
   })
 
   it('Should download the correct given version of Tweego and create the Tweenode folder', async () => {
-    const archiveName = getTweegoUrl().split('/').pop()
+    const config = setupDefaults as unknown as TweenodeSetupOptions
+    const archiveName = getTweegoUrl(config).split('/').pop()
 
     await downloadTweego()
 
@@ -82,7 +84,7 @@ describe('Tweego download and setup', () => {
       await downloadCustomStoryFormats()
     })
 
-    const cases = defaultConfig.setup!.storyFormats!.formats!
+    const cases = setupDefaults!.storyFormats!.formats!
 
     test.each(cases)(`$name format folder should exist`, ({ name }) => {
       const formatPath = resolve(path, name)

@@ -14,7 +14,7 @@ import { viChdir } from './util/helpers'
 import { verifyBinarie } from '../src/verify_tweego'
 import { outputFile, readFileSync, removeSync } from 'fs-extra'
 import { resolve } from 'node:path'
-import { Tweenode } from '../src/run_tweego'
+import { tweenode } from '../src/run_tweego'
 import { JSDOM } from 'jsdom'
 
 describe('Run Tweego', () => {
@@ -84,30 +84,34 @@ describe('Run Tweego', () => {
     })
 
     it('should compile the story and return the code as a string', async () => {
-      const tweego = new Tweenode()
-      const result = await tweego.process({
-        input: {
-          storyDir: resolve(process.cwd(), 'Story/'),
-        },
-        output: {
-          mode: 'string',
+      const tweego = await tweenode({
+        build: {
+          input: {
+            storyDir: resolve(process.cwd(), 'Story/'),
+          },
+          output: {
+            mode: 'string',
+          },
         },
       })
+      const result = await tweego.process()
 
       expect(isValidHtml(result!)).toBe(true)
     })
 
     it('should compile the story and write the code to a file', async () => {
-      const tweego = new Tweenode()
-      await tweego.process({
-        input: {
-          storyDir: resolve(process.cwd(), 'Story/'),
-        },
-        output: {
-          mode: 'file',
-          fileName: 'dist/index.html',
+      const tweego = await tweenode({
+        build: {
+          input: {
+            storyDir: resolve(process.cwd(), 'Story/'),
+          },
+          output: {
+            mode: 'file',
+            fileName: 'dist/index.html',
+          },
         },
       })
+      await tweego.process()
       const result = readFileSync('dist/index.html', 'utf-8')
       expect(isValidHtml(result)).toBe(true)
     })
